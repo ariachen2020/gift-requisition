@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
           success: false,
           message: '該時段已有預約，是否仍要預約？',
           conflicts
-        })
+        }, { status: 409 })
       }
     }
 
