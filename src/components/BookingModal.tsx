@@ -178,16 +178,24 @@ export default function BookingModal({
                   <p className="mb-1 sm:mb-2">時間：{timeSlot}</p>
                   <p className="mb-1 sm:mb-2">現有預約：</p>
                   <ul className="list-disc list-inside pl-2 sm:pl-4 space-y-1">
-                    {conflictBookings.map(booking => (
-                      <li key={booking.id}>
-                        <span className="inline-flex items-center gap-1 sm:gap-2">
-                          <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-orange-100 text-orange-800 text-xs font-medium rounded-full">
-                            順序 {booking.orderIndex}
+                    {conflictBookings.map(booking => {
+                      const bookingTime = new Date(booking.createdAt).toLocaleTimeString('zh-TW', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                      })
+                      return (
+                        <li key={booking.id}>
+                          <span className="inline-flex items-center gap-1 sm:gap-2">
+                            <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-orange-100 text-orange-800 text-xs font-medium rounded-full">
+                              順序 {booking.orderIndex}
+                            </span>
+                            <span>分機 {booking.extension}</span>
+                            <span className="text-orange-600 text-xs">(預約時間: {bookingTime})</span>
                           </span>
-                          分機: {booking.extension}
-                        </span>
-                      </li>
-                    ))}
+                        </li>
+                      )
+                    })}
                   </ul>
                 </div>
               </div>

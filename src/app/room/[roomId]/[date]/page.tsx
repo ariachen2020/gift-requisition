@@ -230,6 +230,13 @@ export default function DatePage({ params }: PageProps) {
                 return groups
               }, {} as Record<string, Booking[]>)
 
+              // Sort bookings within each time slot by creation time
+              Object.keys(groupedBookings).forEach(timeSlot => {
+                groupedBookings[timeSlot].sort((a, b) =>
+                  new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+                )
+              })
+
               return Object.entries(groupedBookings).map(([timeSlot, timeSlotBookings]) => (
                 <div key={timeSlot}>
                   {timeSlotBookings.length > 1 && (
@@ -259,6 +266,15 @@ export default function DatePage({ params }: PageProps) {
                             <div className="flex items-center space-x-1 sm:space-x-2">
                               <Phone className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
                               <span className="text-gray-700">分機 {booking.extension}</span>
+                            </div>
+                            <div className="text-gray-500">
+                              預約於 {new Date(booking.createdAt).toLocaleString('zh-TW', {
+                                month: '2-digit',
+                                day: '2-digit',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                second: '2-digit'
+                              })}
                             </div>
                           </div>
                         </div>
