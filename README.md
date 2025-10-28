@@ -10,8 +10,9 @@
 - **第三層**: 單日詳情頁面 - 顯示該日完整預約清單和空閒時段
 
 ### 📅 預約管理功能
-- ✅ 新增預約 - 填寫預約人姓名和聯絡分機
-- ⚠️ 重疊預約警示 - 顯示衝突預約並允許用戶選擇是否繼續
+- ✅ 新增預約 - 填寫聯絡分機和選擇時間段
+- ⚠️ 時間重疊衝突檢測 - 檢測任何時間段重疊，顯示衝突預約並允許用戶選擇是否繼續
+- 📊 預約時間戳記 - 顯示每個預約的建立時間和先後順序
 - 🗑️ 刪除預約 - 需要分機號碼驗證才能刪除
 - 🔒 安全驗證 - 防止誤刪或惡意刪除
 
@@ -19,6 +20,13 @@
 - 空白日期: 無預約
 - 📅 圖示: 有預約的日期
 - ⚠️ 數字: 重疊預約顯示預約數量
+
+### 📊 預約列表顯示
+- 時間段標示：顯示預約時間 (HH:MM-HH:MM)
+- 順序標籤：同時段的重疊預約顯示「順序 N」
+- 分機資訊：顯示預約者的分機號碼
+- 預約時間：顯示預約的建立時間（精確到秒）
+- 依時間排序：同時段預約按建立時間從早到晚排列
 
 ### 💾 自動備份系統
 - 每日自動備份 (凌晨2點執行)
@@ -98,8 +106,13 @@
 1. **選擇會議室**: 在首頁點擊會議室 A 或會議室 B
 2. **選擇日期**: 在月曆上點擊要預約的日期
 3. **選擇時段**: 點擊空閒時段的「立即預約」按鈕
-4. **填寫資訊**: 輸入預約人姓名和聯絡分機
-5. **確認預約**: 點擊「確認預約」完成預約
+4. **填寫資訊**: 輸入聯絡分機、選擇開始和結束時間
+5. **檢查衝突**:
+   - 如果時段無衝突，直接建立預約
+   - 如果時段有重疊，顯示衝突警示（含現有預約詳情和預約時間）
+6. **確認預約**:
+   - 無衝突：點擊「確認預約」完成
+   - 有衝突：可選擇「取消」或「仍要預約」
 
 ### 🗑️ 刪除預約
 
@@ -110,11 +123,14 @@
 
 ### ⚠️ 重疊預約處理
 
-當選擇已有預約的時段時：
+當選擇與現有預約時間重疊的時段時（包括部分重疊）：
 1. 系統會顯示衝突警示彈窗
-2. 列出現有預約的詳細資訊
+2. 列出所有重疊預約的詳細資訊，包括：
+   - 預約順序號
+   - 分機號碼
+   - 預約建立時間（時分秒）
 3. 用戶可選擇「取消」或「仍要預約」
-4. 選擇「仍要預約」將建立重疊預約
+4. 選擇「仍要預約」將建立重疊預約，並自動分配順序號
 
 ### 💾 備份管理
 
@@ -150,8 +166,11 @@ CREATE TABLE bookings (
   room_id TEXT NOT NULL,           -- 會議室ID (A/B)
   date TEXT NOT NULL,              -- 日期 (YYYY-MM-DD)
   time_slot TEXT NOT NULL,         -- 時間段 (HH:MM-HH:MM)
-  booker TEXT NOT NULL,            -- 預約人姓名
   extension TEXT NOT NULL,         -- 聯絡分機
+  title TEXT,                      -- 會議名稱（已棄用）
+  booker TEXT NOT NULL,            -- 預約人代碼（自動設為分機號）
+  order_index INTEGER DEFAULT 1,   -- 同時段預約順序（1, 2, 3...）
+  recurring_group_id TEXT,         -- 循環預約群組ID
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 ```
@@ -160,6 +179,8 @@ CREATE TABLE bookings (
 ```sql
 CREATE INDEX idx_room_date ON bookings(room_id, date);
 CREATE INDEX idx_room_date_time ON bookings(room_id, date, time_slot);
+CREATE INDEX idx_room_date_time_order ON bookings(room_id, date, time_slot, order_index);
+CREATE INDEX idx_recurring_group ON bookings(recurring_group_id);
 ```
 
 ## 部署到 Zeabur
