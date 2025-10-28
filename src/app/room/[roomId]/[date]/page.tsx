@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Clock, User, Phone, Plus, Trash2, BookText } from 'lucide-react'
+import { ArrowLeft, Clock, Phone, Plus, Trash2 } from 'lucide-react'
 import { format, isValid, parseISO } from 'date-fns'
 import { zhTW } from 'date-fns/locale'
 import { Booking, BookingForm } from '@/types'
@@ -72,9 +72,7 @@ export default function DatePage({ params }: PageProps) {
           roomId,
           date,
           timeSlot: formData.timeSlot,
-          booker: formData.booker,
           extension: formData.extension,
-          title: formData.title,
           recurring: formData.recurring,
           forceBook: formData.forceBook || false
         }),
@@ -256,18 +254,8 @@ export default function DatePage({ params }: PageProps) {
                               )}
                             </span>
                           </div>
-                          {booking.title && (
-                            <div className="flex items-center space-x-2">
-                              <BookText className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
-                              <span className="text-sm sm:text-base font-medium text-gray-900">{booking.title}</span>
-                            </div>
-                          )}
 
                           <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm">
-                            <div className="flex items-center space-x-1 sm:space-x-2">
-                              <User className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
-                              <span className="text-gray-700">{booking.booker}</span>
-                            </div>
                             <div className="flex items-center space-x-1 sm:space-x-2">
                               <Phone className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
                               <span className="text-gray-700">分機 {booking.extension}</span>

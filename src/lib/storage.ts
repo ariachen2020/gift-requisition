@@ -19,7 +19,7 @@ export async function getBookings(): Promise<Booking[]> {
 }
 
 // Add a new booking
-export async function createBooking(booking: Omit<Booking, 'id' | 'createdAt' | 'orderIndex'>): Promise<Booking> {
+export async function createBooking(booking: Omit<Booking, 'id' | 'createdAt' | 'orderIndex' | 'title'>): Promise<Booking> {
   // Calculate the next order index for this time slot
   const existingBookings = await prisma.booking.findMany({
     where: {
@@ -129,7 +129,7 @@ export async function getBookingsByRoomAndDate(roomId: string, date: string): Pr
 
 // Create recurring bookings
 export async function createRecurringBookings(
-  bookingData: Omit<Booking, 'id' | 'createdAt' | 'orderIndex' | 'title' | 'recurringGroupId'> & { title?: string },
+  bookingData: Omit<Booking, 'id' | 'createdAt' | 'orderIndex' | 'title' | 'recurringGroupId'>,
   recurring: { type: 'daily' | 'weekly' | 'monthly'; endDate: string }
 ): Promise<Booking[]> {
   const createdBookings: Booking[] = []
@@ -149,7 +149,7 @@ export async function createRecurringBookings(
     bookingsToCreate.push({
       ...bookingData,
       date: dateStr,
-      title: bookingData.title || null,
+      title: null,
       recurringGroupId
     })
 

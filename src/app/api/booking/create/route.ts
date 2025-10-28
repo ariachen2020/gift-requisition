@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createBooking, createRecurringBookings, getBookingsByRoomAndDate } from '@/lib/storage'
-import { isValidTimeSlot, isValidExtension, isValidBooker } from '@/lib/utils'
+import { isValidTimeSlot, isValidExtension } from '@/lib/utils'
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { roomId, date, timeSlot, booker, extension, recurring, forceBook, title } = body
+    const { roomId, date, timeSlot, extension, recurring, forceBook } = body
 
     // Validation
     if (!roomId || (roomId !== 'A' && roomId !== 'B')) {
@@ -25,13 +25,6 @@ export async function POST(request: NextRequest) {
     if (!isValidTimeSlot(timeSlot)) {
       return NextResponse.json(
         { message: '無效的時間段' },
-        { status: 400 }
-      )
-    }
-
-    if (!isValidBooker(booker)) {
-      return NextResponse.json(
-        { message: '請輸入正確的預約人姓名（2-20個字元）' },
         { status: 400 }
       )
     }
@@ -57,13 +50,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (title && title.length > 100) {
-      return NextResponse.json(
-        { message: '會議名稱不能超過100個字元' },
-        { status: 400 }
-      )
-    }
-
     // Check for existing booking if not forcing
     if (!forceBook) {
       const existingBookings = await getBookingsByRoomAndDate(roomId, date)
@@ -82,9 +68,9 @@ export async function POST(request: NextRequest) {
       roomId,
       date,
       timeSlot,
-      booker: booker.trim(),
+      booker: extension.trim(),
       extension: extension.trim(),
-      title: title ? title.trim() : null,
+      title: null,
       recurringGroupId: null
     }
 

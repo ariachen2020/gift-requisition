@@ -76,7 +76,6 @@ export default function DeleteModal({ isOpen, onClose, onConfirm, booking, recur
                 即將刪除以下預約
               </h4>
               <div className="text-sm text-red-800 space-y-1">
-                <p>預約人：{booking.booker}</p>
                 <p>時間：{booking.timeSlot}</p>
                 <p>日期：{booking.date}</p>
               </div>
