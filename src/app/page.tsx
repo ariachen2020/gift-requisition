@@ -25,7 +25,19 @@ export default function HomePage() {
               <ul className="space-y-2 text-sm sm:text-base text-blue-800">
                 <li className="flex items-start">
                   <span className="mr-2">•</span>
-                  <span><strong>新增預約：</strong>選擇會議室後，點擊日期和時段即可預約</span>
+                  <span><strong>新增預約：</strong>選擇會議室後，點擊日期和時段，填寫分機號碼即可預約</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="mr-2">•</span>
+                  <span><strong>時間重疊檢測：</strong>預約時若與現有預約時間重疊（包括部分重疊），系統會顯示衝突警示，列出重疊預約的分機和預約時間</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="mr-2">•</span>
+                  <span><strong>允許重疊預約：</strong>衝突警示出現時，可選擇「仍要預約」以允許時段重疊，系統會自動分配預約順序</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="mr-2">•</span>
+                  <span><strong>預約順序顯示：</strong>同時段的多個預約會顯示順序號（1、2、3...），以及各自的預約時間（精確到秒）</span>
                 </li>
                 <li className="flex items-start">
                   <span className="mr-2">•</span>
