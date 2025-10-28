@@ -53,7 +53,14 @@ export async function POST(request: NextRequest) {
     // Check for existing booking if not forcing
     if (!forceBook) {
       const existingBookings = await getBookingsByRoomAndDate(roomId, date)
-      const conflicts = existingBookings.filter(b => b.timeSlot === timeSlot)
+
+      // Parse time slot to check for overlaps
+      const [newStart, newEnd] = timeSlot.split('-')
+      const conflicts = existingBookings.filter(b => {
+        const [existingStart, existingEnd] = b.timeSlot.split('-')
+        // Check if there's any time overlap
+        return existingStart < newEnd && newStart < existingEnd
+      })
 
       if (conflicts.length > 0) {
         return NextResponse.json({
