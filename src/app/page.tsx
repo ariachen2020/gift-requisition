@@ -71,7 +71,7 @@ export default function HomePage() {
               <MapPin className="w-7 h-7 sm:w-8 sm:h-8 text-blue-600" />
             </div>
             <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-2">
-              會議室 A
+              會議室 1
             </h2>
             <p className="text-sm sm:text-base text-gray-600">
               點擊查看預約狀況
@@ -88,7 +88,7 @@ export default function HomePage() {
               <Users className="w-7 h-7 sm:w-8 sm:h-8 text-blue-600" />
             </div>
             <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-2">
-              會議室 B
+              會議室 2
             </h2>
             <p className="text-sm sm:text-base text-gray-600">
               點擊查看預約狀況
