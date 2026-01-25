@@ -173,7 +173,7 @@ export default function BookingModal({
                   該時段已有預約，是否仍要預約？
                 </h4>
                 <div className="text-xs sm:text-sm text-orange-800">
-                  <p className="mb-1 sm:mb-2">會議室：{roomId}</p>
+                  <p className="mb-1 sm:mb-2">會議室：{roomId === 'A' ? '1' : '2'}</p>
                   <p className="mb-1 sm:mb-2">日期：{date}</p>
                   <p className="mb-1 sm:mb-2">時間：{timeSlot}</p>
                   <p className="mb-1 sm:mb-2">現有預約：</p>
@@ -226,7 +226,7 @@ export default function BookingModal({
               </label>
               <input
                 type="text"
-                value={`會議室 ${roomId}`}
+                value={`會議室 ${roomId === 'A' ? '1' : '2'}`}
                 readOnly
                 className="w-full px-2 sm:px-3 py-1.5 sm:py-2 text-sm sm:text-base border border-gray-300 rounded-lg bg-gray-50"
               />

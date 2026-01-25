@@ -117,7 +117,7 @@ export default async function RoomPage({ params, searchParams }: PageProps) {
             <Users className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600" />
           )}
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-            會議室 {roomId}
+            會議室 {roomId === 'A' ? '1' : '2'}
           </h1>
         </div>
         <p className="text-sm sm:text-base text-gray-600">

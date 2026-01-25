@@ -176,7 +176,7 @@ export default function DatePage({ params }: PageProps) {
 
       <div className="text-center mb-6 sm:mb-8 px-4">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-          會議室 {roomId}
+          會議室 {roomId === 'A' ? '1' : '2'}
         </h1>
         <p className="text-base sm:text-lg text-gray-600">
           {format(dateObj, 'yyyy年 M月 d日 EEEE', { locale: zhTW })}
