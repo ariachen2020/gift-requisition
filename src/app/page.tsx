@@ -36,8 +36,8 @@ export default function HomePage() {
               <Gift className="w-5 h-5 text-green-600" />
             </div>
             <div>
-              <h3 className="font-medium text-gray-900">禮品領取</h3>
-              <p className="text-sm text-gray-500">瀏覽及領取禮品</p>
+              <h3 className="font-medium text-gray-900">公務禮品領取</h3>
+              <p className="text-sm text-gray-500">瀏覽及領取公務禮品</p>
             </div>
           </Link>
         </div>

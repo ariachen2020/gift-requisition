@@ -325,7 +325,7 @@ export default function AdminInventoryPage() {
       <!DOCTYPE html>
       <html>
         <head>
-          <title>禮品領用月報表 - ${monthDisplay}</title>
+          <title>公務禮品領用月報表 - ${monthDisplay}</title>
           <style>
             @page { size: A4; margin: 15mm; }
             body {
@@ -382,7 +382,7 @@ export default function AdminInventoryPage() {
           </style>
         </head>
         <body>
-          <h1>禮品領用月報表</h1>
+          <h1>公務禮品領用月報表</h1>
           <div class="meta">報表期間：${monthDisplay} ｜ 篩選部門：${deptDisplay} ｜ 列印時間：${new Date().toLocaleString('zh-TW')}</div>
 
           <div class="summary">
@@ -468,7 +468,7 @@ export default function AdminInventoryPage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-lg shadow p-6 w-full max-w-md">
-          <h1 className="text-xl font-bold text-center mb-6">禮品庫存管理</h1>
+          <h1 className="text-xl font-bold text-center mb-6">公務禮品庫存管理</h1>
           <p className="text-gray-600 text-center mb-4">請輸入管理員分機號碼</p>
           <input
             type="text"
@@ -509,7 +509,7 @@ export default function AdminInventoryPage() {
               <Link href="/" className="text-gray-600 hover:text-gray-900">
                 <ArrowLeft className="w-6 h-6" />
               </Link>
-              <h1 className="text-xl font-bold text-gray-900">禮品庫存管理</h1>
+              <h1 className="text-xl font-bold text-gray-900">公務禮品庫存管理</h1>
             </div>
             <span className="text-sm text-gray-500">管理員：{extension}</span>
           </div>

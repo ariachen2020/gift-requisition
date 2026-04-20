@@ -1,6 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { existsSync, unlinkSync } from 'fs'
+import path from 'path'
 import { prisma } from '@/lib/prisma'
 import { isAdmin } from '@/config/admin-extensions'
+
+const UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(process.env.STORAGE_ROOT || '/app/data', 'uploads')
+
+function deleteImageFile(imageUrl: string | null) {
+  if (!imageUrl) return
+  const match = imageUrl.match(/\/(?:api\/)?uploads\/([^/]+)$/)
+  if (!match) return
+  const filepath = path.join(UPLOAD_DIR, match[1])
+  if (existsSync(filepath)) {
+    try { unlinkSync(filepath) } catch { /* ignore */ }
+  }
+}
 
 // GET: 取得單一商品
 export async function GET(
@@ -96,7 +110,12 @@ export async function PUT(
     if (name !== undefined) updateData.name = name.trim()
     if (category !== undefined) updateData.category = category?.trim() || null
     if (quantity !== undefined) updateData.quantity = quantity
-    if (imageUrl !== undefined) updateData.imageUrl = imageUrl?.trim() || null
+    if (imageUrl !== undefined) {
+      if (existingItem.imageUrl && existingItem.imageUrl !== imageUrl) {
+        deleteImageFile(existingItem.imageUrl)
+      }
+      updateData.imageUrl = imageUrl?.trim() || null
+    }
 
     const item = await prisma.item.update({
       where: { id: itemId },
@@ -150,6 +169,8 @@ export async function DELETE(
         { status: 404 }
       )
     }
+
+    deleteImageFile(existingItem.imageUrl)
 
     await prisma.item.delete({
       where: { id: itemId },

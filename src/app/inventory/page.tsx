@@ -170,7 +170,7 @@ export default function InventoryPage() {
       <!DOCTYPE html>
       <html>
         <head>
-          <title>禮品領用單 - ${receiptData.id}</title>
+          <title>公務禮品領用單 - ${receiptData.id}</title>
           <style>
             @page {
               size: A4;
@@ -256,7 +256,7 @@ export default function InventoryPage() {
         <body>
           <div class="container">
             <div class="receipt-id">單號：${String(receiptData.id).padStart(6, '0')}</div>
-            <h1>禮品領用單</h1>
+            <h1>公務禮品領用單</h1>
 
             <div class="info-section">
               <div class="info-item">
@@ -323,7 +323,7 @@ export default function InventoryPage() {
             <Link href="/" className="text-gray-600 hover:text-gray-900">
               <ArrowLeft className="w-6 h-6" />
             </Link>
-            <h1 className="text-xl font-bold text-gray-900">禮品領取</h1>
+            <h1 className="text-xl font-bold text-gray-900">公務禮品領取</h1>
           </div>
         </div>
       </header>
