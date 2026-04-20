@@ -8,6 +8,10 @@ import { Item, ItemRequest, DEPARTMENTS } from '@/types'
 
 type Tab = 'items' | 'reports'
 
+function escapeHtml(str: string): string {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+}
+
 interface ItemFormData {
   name: string
   category: string
@@ -293,7 +297,7 @@ export default function AdminInventoryPage() {
       .sort((a, b) => b[1].items - a[1].items)
       .map(([dept, data]) => `
         <tr>
-          <td style="border: 1px solid #333; padding: 10px;">${dept}</td>
+          <td style="border: 1px solid #333; padding: 10px;">${escapeHtml(dept)}</td>
           <td style="border: 1px solid #333; padding: 10px; text-align: center;">${data.count}</td>
           <td style="border: 1px solid #333; padding: 10px; text-align: center;">${data.items}</td>
         </tr>
@@ -303,17 +307,17 @@ export default function AdminInventoryPage() {
       .sort((a, b) => b[1] - a[1])
       .map(([name, count]) => `
         <tr>
-          <td style="border: 1px solid #333; padding: 10px;">${name}</td>
+          <td style="border: 1px solid #333; padding: 10px;">${escapeHtml(name)}</td>
           <td style="border: 1px solid #333; padding: 10px; text-align: center;">${count}</td>
         </tr>
       `).join('')
 
     const detailRows = filteredRequests.map(req => `
       <tr>
-        <td style="border: 1px solid #333; padding: 8px; font-size: 12px;">${new Date(req.createdAt).toLocaleString('zh-TW')}</td>
-        <td style="border: 1px solid #333; padding: 8px;">${req.extension}</td>
-        <td style="border: 1px solid #333; padding: 8px;">${req.department}</td>
-        <td style="border: 1px solid #333; padding: 8px;">${req.items.map(i => `${i.name} x${i.quantity}`).join('、')}</td>
+        <td style="border: 1px solid #333; padding: 8px; font-size: 12px;">${escapeHtml(new Date(req.createdAt).toLocaleString('zh-TW'))}</td>
+        <td style="border: 1px solid #333; padding: 8px;">${escapeHtml(req.extension)}</td>
+        <td style="border: 1px solid #333; padding: 8px;">${escapeHtml(req.department)}</td>
+        <td style="border: 1px solid #333; padding: 8px;">${req.items.map(i => `${escapeHtml(i.name)} x${i.quantity}`).join('、')}</td>
       </tr>
     `).join('')
 

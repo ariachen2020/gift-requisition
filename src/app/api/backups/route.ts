@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { copyFileSync, existsSync, mkdirSync, readdirSync, statSync, unlinkSync } from 'fs'
+import { existsSync, mkdirSync, readdirSync, statSync, unlinkSync } from 'fs'
 import path from 'path'
 import { isAdmin } from '@/config/admin-extensions'
+import { safeBackup } from '@/lib/backup'
 
 const DATA_DIR = process.env.STORAGE_ROOT || '/app/data'
 const BACKUP_DIR = process.env.BACKUP_ROOT || '/app/backups'
 const DB_FILENAME = 'booking.db'
+
+const VALID_BACKUP_FILENAME = /^booking_backup_\d{8}_\d{6}\.db$/
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
@@ -20,7 +23,7 @@ export async function GET(request: NextRequest) {
   }
 
   const files = readdirSync(BACKUP_DIR)
-    .filter(f => f.startsWith('booking_backup_') && f.endsWith('.db'))
+    .filter(f => VALID_BACKUP_FILENAME.test(f))
     .map(f => {
       const filepath = path.join(BACKUP_DIR, f)
       const stat = statSync(filepath)
@@ -63,17 +66,16 @@ export async function POST(request: NextRequest) {
   const backupFilename = `booking_backup_${timestamp}.db`
   const backupPath = path.join(BACKUP_DIR, backupFilename)
 
-  try {
-    copyFileSync(dbPath, backupPath)
+  if (safeBackup(dbPath, backupPath)) {
     const size = statSync(backupPath).size
     return NextResponse.json({
       message: '備份成功',
       filename: backupFilename,
       size: `${(size / 1024).toFixed(1)} KB`,
     })
-  } catch (err) {
-    return NextResponse.json({ error: `備份失敗: ${err}` }, { status: 500 })
   }
+
+  return NextResponse.json({ error: '備份失敗，請稍後再試' }, { status: 500 })
 }
 
 export async function DELETE(request: NextRequest) {
@@ -85,7 +87,7 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: '無權限' }, { status: 403 })
   }
 
-  if (!filename || !filename.startsWith('booking_backup_') || !filename.endsWith('.db')) {
+  if (!filename || !VALID_BACKUP_FILENAME.test(filename)) {
     return NextResponse.json({ error: '無效的檔案名稱' }, { status: 400 })
   }
 
@@ -98,7 +100,7 @@ export async function DELETE(request: NextRequest) {
   try {
     unlinkSync(filepath)
     return NextResponse.json({ message: '已刪除備份' })
-  } catch (err) {
-    return NextResponse.json({ error: `刪除失敗: ${err}` }, { status: 500 })
+  } catch {
+    return NextResponse.json({ error: '刪除失敗，請稍後再試' }, { status: 500 })
   }
 }

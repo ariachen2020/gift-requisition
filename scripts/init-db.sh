@@ -27,13 +27,13 @@ fi
 # Initialize database if it doesn't exist
 if [ ! -f "$DB_PATH" ]; then
     echo "Creating new database..."
-    
+
     # Generate Prisma client first
     npx prisma generate
-    
-    # Create database using db push (more reliable than migrate deploy for new databases)
-    npx prisma db push --force-reset
-    
+
+    # Create database using db push
+    npx prisma db push
+
     echo "Database created successfully"
 else
     echo "Database already exists, checking schema..."
@@ -57,7 +57,7 @@ else
     else
         echo "Database schema is invalid, recreating..."
         rm -f "$DB_PATH"
-        npx prisma db push --force-reset
+        npx prisma db push
     fi
     
     echo "Database schema updated"
@@ -71,7 +71,7 @@ if [ -f "$DB_PATH" ] && [ -s "$DB_PATH" ] && sqlite3 "$DB_PATH" ".schema" | grep
 else
     echo "Database verification failed, recreating..."
     rm -f "$DB_PATH"
-    npx prisma db push --force-reset
+    npx prisma db push
     echo "Database recreated successfully"
 fi
 

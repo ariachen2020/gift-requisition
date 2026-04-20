@@ -83,6 +83,16 @@ export async function POST(request: NextRequest) {
 
     // Handle recurring bookings
     if (recurring?.enabled && recurring.endDate) {
+      const maxEndDate = new Date(date)
+      maxEndDate.setDate(maxEndDate.getDate() + 90)
+      const requestedEnd = new Date(recurring.endDate)
+      if (requestedEnd > maxEndDate) {
+        return NextResponse.json(
+          { message: '循環預約最多 90 天' },
+          { status: 400 }
+        )
+      }
+
       const createdBookings = await createRecurringBookings(bookingData, {
         type: recurring.type,
         endDate: recurring.endDate

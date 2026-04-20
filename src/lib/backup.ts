@@ -1,11 +1,12 @@
-import { copyFileSync, existsSync, mkdirSync, readdirSync, statSync, unlinkSync } from 'fs'
+import { execSync } from 'child_process'
+import { existsSync, mkdirSync, readdirSync, statSync, unlinkSync } from 'fs'
 import path from 'path'
 
 const DATA_DIR = process.env.STORAGE_ROOT || '/app/data'
 const BACKUP_DIR = process.env.BACKUP_ROOT || '/app/backups'
 const DB_FILENAME = 'booking.db'
 const RETENTION_DAYS = parseInt(process.env.BACKUP_RETENTION_DAYS || '30', 10)
-const BACKUP_INTERVAL_MS = 12 * 60 * 60 * 1000 // every 12 hours
+const BACKUP_INTERVAL_MS = 12 * 60 * 60 * 1000
 
 function log(message: string) {
   console.log(`[Backup ${new Date().toISOString()}] ${message}`)
@@ -14,6 +15,15 @@ function log(message: string) {
 function ensureDir(dir: string) {
   if (!existsSync(dir)) {
     mkdirSync(dir, { recursive: true })
+  }
+}
+
+export function safeBackup(dbPath: string, backupPath: string): boolean {
+  try {
+    execSync(`sqlite3 "${dbPath}" ".backup '${backupPath}'"`, { timeout: 30000 })
+    return true
+  } catch {
+    return false
   }
 }
 
@@ -32,12 +42,12 @@ function createBackup() {
   const backupFilename = `booking_backup_${timestamp}.db`
   const backupPath = path.join(BACKUP_DIR, backupFilename)
 
-  try {
-    copyFileSync(dbPath, backupPath)
+  if (safeBackup(dbPath, backupPath)) {
     const size = statSync(backupPath).size
     log(`Backup created: ${backupFilename} (${(size / 1024).toFixed(1)} KB)`)
-  } catch (err) {
-    log(`Backup failed: ${err}`)
+  } else {
+    log('Backup failed: sqlite3 .backup command error')
+    if (existsSync(backupPath)) unlinkSync(backupPath)
   }
 
   cleanOldBackups()
@@ -77,12 +87,10 @@ export function startBackupSchedule() {
 
   log('Backup schedule started (every 12 hours)')
 
-  // Run first backup after 1 minute (let app fully start)
   setTimeout(() => {
     createBackup()
   }, 60 * 1000)
 
-  // Then every 12 hours
   setInterval(() => {
     createBackup()
   }, BACKUP_INTERVAL_MS)

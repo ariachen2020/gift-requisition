@@ -6,6 +6,10 @@ import { ArrowLeft, ShoppingCart, Plus, Minus, X, Package, FileDown } from 'luci
 import { Item, CartItem, ItemRequestItem, DEPARTMENTS } from '@/types'
 import { isExtensionAllowed } from '@/config/allowed-extensions'
 
+function escapeHtml(str: string): string {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+}
+
 export default function InventoryPage() {
   const [step, setStep] = useState<'browse' | 'confirm' | 'receipt'>('browse')
   const [extension, setExtension] = useState('')
@@ -157,7 +161,7 @@ export default function InventoryPage() {
     const itemsRows = receiptData.items.map((item, index) => `
       <tr>
         <td style="border: 1px solid #333; padding: 10px; text-align: center;">${index + 1}</td>
-        <td style="border: 1px solid #333; padding: 10px;">${item.name}</td>
+        <td style="border: 1px solid #333; padding: 10px;">${escapeHtml(item.name)}</td>
         <td style="border: 1px solid #333; padding: 10px; text-align: center;">${item.quantity}</td>
       </tr>
     `).join('')
@@ -257,15 +261,15 @@ export default function InventoryPage() {
             <div class="info-section">
               <div class="info-item">
                 <div class="info-label">領用日期</div>
-                <div class="info-value">${receiptData.createdAt}</div>
+                <div class="info-value">${escapeHtml(receiptData.createdAt)}</div>
               </div>
               <div class="info-item">
                 <div class="info-label">領用分機</div>
-                <div class="info-value">${receiptData.extension}</div>
+                <div class="info-value">${escapeHtml(receiptData.extension)}</div>
               </div>
               <div class="info-item">
                 <div class="info-label">所屬部門</div>
-                <div class="info-value">${receiptData.department}</div>
+                <div class="info-value">${escapeHtml(receiptData.department)}</div>
               </div>
             </div>
 
