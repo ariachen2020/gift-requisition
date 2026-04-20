@@ -43,5 +43,8 @@ next-env.d.ts
 # backups
 /backups/*.db
 
+# uploaded files
+/public/uploads/
+
 # claude
 .claude/

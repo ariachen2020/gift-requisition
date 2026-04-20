@@ -7,7 +7,7 @@ import { Item, CartItem, ItemRequestItem, DEPARTMENTS } from '@/types'
 import { isExtensionAllowed } from '@/config/allowed-extensions'
 
 export default function InventoryPage() {
-  const [step, setStep] = useState<'extension' | 'browse' | 'confirm' | 'receipt'>('extension')
+  const [step, setStep] = useState<'browse' | 'confirm' | 'receipt'>('browse')
   const [extension, setExtension] = useState('')
   const [extensionError, setExtensionError] = useState('')
   const [department, setDepartment] = useState('')
@@ -26,27 +26,10 @@ export default function InventoryPage() {
   } | null>(null)
   const receiptRef = useRef<HTMLDivElement>(null)
 
-  // 驗證分機並進入下一步
-  const handleExtensionSubmit = () => {
-    const trimmed = extension.trim()
-    if (!trimmed) {
-      setExtensionError('請輸入分機號碼')
-      return
-    }
-    if (!isExtensionAllowed(trimmed)) {
-      setExtensionError('此分機號碼不在系統允許的清單中')
-      return
-    }
-    setExtensionError('')
-    setStep('browse')
-  }
-
-  // 取得商品列表
+  // 進入頁面就載入商品
   useEffect(() => {
-    if (step === 'browse') {
-      fetchItems()
-    }
-  }, [step])
+    fetchItems()
+  }, [])
 
   const fetchItems = async () => {
     try {
@@ -114,6 +97,15 @@ export default function InventoryPage() {
 
   // 提交領取申請
   const handleSubmit = async () => {
+    const trimmed = extension.trim()
+    if (!trimmed) {
+      setExtensionError('請輸入分機號碼')
+      return
+    }
+    if (!isExtensionAllowed(trimmed)) {
+      setExtensionError('此分機號碼不在系統允許的清單中')
+      return
+    }
     if (!department) {
       setError('請選擇部門')
       return
@@ -237,24 +229,6 @@ export default function InventoryPage() {
               border: 1px solid #333;
               padding: 10px;
             }
-            .signature-section {
-              margin-top: 50px;
-              display: flex;
-              justify-content: space-between;
-            }
-            .signature-box {
-              width: 200px;
-              text-align: center;
-            }
-            .signature-line {
-              border-bottom: 1px solid #333;
-              height: 60px;
-              margin-bottom: 10px;
-            }
-            .signature-label {
-              font-size: 14px;
-              color: #555;
-            }
             .footer {
               margin-top: 40px;
               text-align: center;
@@ -308,21 +282,6 @@ export default function InventoryPage() {
               </tbody>
             </table>
 
-            <div class="signature-section">
-              <div class="signature-box">
-                <div class="signature-line"></div>
-                <div class="signature-label">領用人簽章</div>
-              </div>
-              <div class="signature-box">
-                <div class="signature-line"></div>
-                <div class="signature-label">主管簽章</div>
-              </div>
-              <div class="signature-box">
-                <div class="signature-line"></div>
-                <div class="signature-label">管理員簽章</div>
-              </div>
-            </div>
-
             <div class="footer">
               此單據由系統自動產生，請妥善保管
             </div>
@@ -340,7 +299,7 @@ export default function InventoryPage() {
 
   // 重新開始
   const handleReset = () => {
-    setStep('extension')
+    setStep('browse')
     setExtension('')
     setExtensionError('')
     setDepartment('')
@@ -348,6 +307,7 @@ export default function InventoryPage() {
     setReceiptData(null)
     setSearchTerm('')
     setSelectedCategory('')
+    fetchItems()
   }
 
   return (
@@ -365,38 +325,7 @@ export default function InventoryPage() {
       </header>
 
       <main className="max-w-4xl mx-auto px-4 py-6">
-        {/* Step 1: 輸入分機 */}
-        {step === 'extension' && (
-          <div className="bg-white rounded-lg shadow p-6 max-w-md mx-auto">
-            <h2 className="text-lg font-semibold mb-4">請輸入您的分機號碼</h2>
-            <input
-              type="text"
-              value={extension}
-              onChange={(e) => {
-                setExtension(e.target.value)
-                setExtensionError('')
-              }}
-              placeholder="例如：8501"
-              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${
-                extensionError ? 'border-red-500' : ''
-              }`}
-              onKeyDown={(e) => e.key === 'Enter' && handleExtensionSubmit()}
-              autoFocus
-            />
-            {extensionError && (
-              <p className="mt-2 text-red-500 text-sm">{extensionError}</p>
-            )}
-            <button
-              onClick={handleExtensionSubmit}
-              disabled={!extension.trim()}
-              className="w-full mt-4 px-4 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition"
-            >
-              開始選購
-            </button>
-          </div>
-        )}
-
-        {/* Step 2: 瀏覽商品 */}
+        {/* 瀏覽商品 */}
         {step === 'browse' && (
           <div className="space-y-4">
             {/* 搜尋和篩選 */}
@@ -532,14 +461,23 @@ export default function InventoryPage() {
             <div className="space-y-4 mb-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  分機號碼
+                  分機號碼 <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   value={extension}
-                  disabled
-                  className="w-full px-4 py-2 bg-gray-100 border rounded-lg"
+                  onChange={(e) => {
+                    setExtension(e.target.value)
+                    setExtensionError('')
+                  }}
+                  placeholder="例如：8501"
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${
+                    extensionError ? 'border-red-500' : ''
+                  }`}
                 />
+                {extensionError && (
+                  <p className="mt-1 text-red-500 text-sm">{extensionError}</p>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">

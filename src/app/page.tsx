@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { MapPin, Users, Info, Gift, Calendar } from 'lucide-react'
+import { MapPin, Users, Info, Gift, Calendar, Settings } from 'lucide-react'
 
 export default function HomePage() {
   return (
@@ -15,7 +15,7 @@ export default function HomePage() {
 
       {/* 功能選單 */}
       <div className="mb-8 px-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
           <a
             href="#meeting-rooms"
             className="flex items-center gap-3 p-4 bg-white rounded-lg shadow hover:shadow-md transition border border-gray-200 hover:border-primary-300"
@@ -38,6 +38,18 @@ export default function HomePage() {
             <div>
               <h3 className="font-medium text-gray-900">禮品領取</h3>
               <p className="text-sm text-gray-500">瀏覽及領取禮品</p>
+            </div>
+          </Link>
+          <Link
+            href="/admin/inventory"
+            className="flex items-center gap-3 p-4 bg-white rounded-lg shadow hover:shadow-md transition border border-gray-200 hover:border-primary-300"
+          >
+            <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+              <Settings className="w-5 h-5 text-purple-600" />
+            </div>
+            <div>
+              <h3 className="font-medium text-gray-900">庫存管理</h3>
+              <p className="text-sm text-gray-500">管理員後台</p>
             </div>
           </Link>
         </div>

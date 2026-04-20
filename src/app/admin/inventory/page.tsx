@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Plus, Pencil, Trash2, Package, Search, FileText, Download } from 'lucide-react'
+import { ArrowLeft, Plus, Pencil, Trash2, Package, Search, FileText, Download, Camera, X } from 'lucide-react'
 import { isAdmin } from '@/config/admin-extensions'
 import { Item, ItemRequest, DEPARTMENTS } from '@/types'
 
@@ -39,6 +39,10 @@ export default function AdminInventoryPage() {
     quantity: 0,
     imageUrl: '',
   })
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string>('')
+  const [uploading, setUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   // 報表篩選
   const [selectedMonth, setSelectedMonth] = useState(() => {
@@ -122,11 +126,34 @@ export default function AdminInventoryPage() {
         quantity: item.quantity,
         imageUrl: item.imageUrl || '',
       })
+      setImagePreview(item.imageUrl || '')
     } else {
       setEditingItem(null)
       setFormData({ name: '', category: '', quantity: 0, imageUrl: '' })
+      setImagePreview('')
     }
+    setImageFile(null)
     setShowModal(true)
+  }
+
+  // 處理圖片選擇
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setImageFile(file)
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      setImagePreview(ev.target?.result as string)
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const clearImage = () => {
+    setImageFile(null)
+    setImagePreview('')
+    setFormData({ ...formData, imageUrl: '' })
+    if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
   // 儲存商品
@@ -140,13 +167,36 @@ export default function AdminInventoryPage() {
       setLoading(true)
       setError('')
 
+      let imageUrl = formData.imageUrl
+
+      if (imageFile) {
+        setUploading(true)
+        const uploadData = new FormData()
+        uploadData.append('file', imageFile)
+        uploadData.append('extension', extension)
+
+        const uploadRes = await fetch('/api/upload', {
+          method: 'POST',
+          body: uploadData,
+        })
+
+        if (!uploadRes.ok) {
+          const uploadErr = await uploadRes.json()
+          throw new Error(uploadErr.error || '圖片上傳失敗')
+        }
+
+        const uploadResult = await uploadRes.json()
+        imageUrl = uploadResult.url
+        setUploading(false)
+      }
+
       const url = editingItem ? `/api/items/${editingItem.id}` : '/api/items'
       const method = editingItem ? 'PUT' : 'POST'
 
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, extension }),
+        body: JSON.stringify({ ...formData, imageUrl, extension }),
       })
 
       if (!res.ok) {
@@ -160,6 +210,7 @@ export default function AdminInventoryPage() {
       setError(err instanceof Error ? err.message : '發生錯誤')
     } finally {
       setLoading(false)
+      setUploading(false)
     }
   }
 
@@ -302,6 +353,24 @@ export default function AdminInventoryPage() {
               border: 1px solid #333;
             }
             td { border: 1px solid #333; padding: 8px; }
+            .signature-section {
+              margin-top: 60px;
+              display: flex;
+              justify-content: space-between;
+            }
+            .signature-box {
+              width: 200px;
+              text-align: center;
+            }
+            .signature-line {
+              border-bottom: 1px solid #333;
+              height: 60px;
+              margin-bottom: 10px;
+            }
+            .signature-label {
+              font-size: 14px;
+              color: #555;
+            }
             .footer { margin-top: 30px; text-align: center; font-size: 11px; color: #888; }
             @media print {
               body { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
@@ -368,6 +437,17 @@ export default function AdminInventoryPage() {
               ${detailRows || '<tr><td colspan="4" style="text-align: center; padding: 20px;">無資料</td></tr>'}
             </tbody>
           </table>
+
+          <div class="signature-section">
+            <div class="signature-box">
+              <div class="signature-line"></div>
+              <div class="signature-label">主管簽章</div>
+            </div>
+            <div class="signature-box">
+              <div class="signature-line"></div>
+              <div class="signature-label">管理員簽章</div>
+            </div>
+          </div>
 
           <div class="footer">此報表由系統自動產生</div>
         </body>
@@ -787,15 +867,50 @@ export default function AdminInventoryPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  圖片網址
+                  商品圖片
                 </label>
+                {imagePreview ? (
+                  <div className="relative">
+                    <img
+                      src={imagePreview}
+                      alt="預覽"
+                      className="w-full h-48 object-cover rounded-lg border"
+                    />
+                    <button
+                      type="button"
+                      onClick={clearImage}
+                      className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-full h-32 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center gap-2 text-gray-400 hover:border-primary-400 hover:text-primary-500 transition"
+                  >
+                    <Camera className="w-8 h-8" />
+                    <span className="text-sm">點擊拍照或選擇圖片</span>
+                  </button>
+                )}
                 <input
-                  type="text"
-                  value={formData.imageUrl}
-                  onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                  placeholder="https://..."
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  onChange={handleImageSelect}
+                  className="hidden"
                 />
+                {imagePreview && (
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="mt-2 text-sm text-primary-500 hover:text-primary-600"
+                  >
+                    重新選擇圖片
+                  </button>
+                )}
               </div>
             </div>
             <div className="p-4 border-t flex gap-3 justify-end">
@@ -810,7 +925,7 @@ export default function AdminInventoryPage() {
                 disabled={loading}
                 className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:bg-gray-300"
               >
-                {loading ? '儲存中...' : '儲存'}
+                {uploading ? '上傳圖片中...' : loading ? '儲存中...' : '儲存'}
               </button>
             </div>
           </div>
