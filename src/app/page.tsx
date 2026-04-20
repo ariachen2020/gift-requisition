@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { MapPin, Users, Info, Gift, Calendar, Settings } from 'lucide-react'
+import { MapPin, Users, Info, Gift, Calendar, Settings, Database } from 'lucide-react'
 
 export default function HomePage() {
   return (
@@ -49,6 +49,18 @@ export default function HomePage() {
             </div>
             <div>
               <h3 className="font-medium text-gray-900">庫存管理</h3>
+              <p className="text-sm text-gray-500">管理員後台</p>
+            </div>
+          </Link>
+          <Link
+            href="/admin/backups"
+            className="flex items-center gap-3 p-4 bg-white rounded-lg shadow hover:shadow-md transition border border-gray-200 hover:border-primary-300"
+          >
+            <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+              <Database className="w-5 h-5 text-green-600" />
+            </div>
+            <div>
+              <h3 className="font-medium text-gray-900">資料備份</h3>
               <p className="text-sm text-gray-500">管理員後台</p>
             </div>
           </Link>
