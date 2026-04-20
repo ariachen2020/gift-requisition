@@ -5,6 +5,14 @@ const nextConfig = {
   experimental: {
     instrumentationHook: true,
   },
+  async rewrites() {
+    return [
+      {
+        source: '/uploads/:filename',
+        destination: '/api/uploads/:filename',
+      },
+    ]
+  },
   webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,

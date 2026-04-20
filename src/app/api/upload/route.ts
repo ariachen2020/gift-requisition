@@ -4,7 +4,7 @@ import { existsSync, mkdirSync } from 'fs'
 import path from 'path'
 import { isAdmin } from '@/config/admin-extensions'
 
-const UPLOAD_DIR = path.join(process.cwd(), 'public', 'uploads')
+const UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(process.env.STORAGE_ROOT || '/app/data', 'uploads')
 
 export async function POST(request: NextRequest) {
   try {
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
     await writeFile(filepath, Buffer.from(bytes))
 
     return NextResponse.json({
-      url: `/uploads/${filename}`,
+      url: `/api/uploads/${filename}`,
     })
   } catch (error) {
     console.error('Error uploading file:', error)

@@ -4,7 +4,7 @@ set -e
 echo "=== Starting Meetingroom App ==="
 
 echo "Checking database directory..."
-mkdir -p /app/data /app/backups
+mkdir -p /app/data /app/data/uploads /app/backups
 
 echo "Setting up database..."
 # Use the dedicated database initialization script
