@@ -1,16 +1,51 @@
 import Link from 'next/link'
-import { MapPin, Users, Info } from 'lucide-react'
+import { MapPin, Users, Info, Gift, Calendar } from 'lucide-react'
 
 export default function HomePage() {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="text-center mb-8 sm:mb-12 px-4">
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
-          會議室預約系統
+          內部服務系統
         </h1>
         <p className="text-base sm:text-lg text-gray-600">
-          請選擇您要預約的會議室
+          請選擇您要使用的功能
         </p>
+      </div>
+
+      {/* 功能選單 */}
+      <div className="mb-8 px-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl mx-auto">
+          <a
+            href="#meeting-rooms"
+            className="flex items-center gap-3 p-4 bg-white rounded-lg shadow hover:shadow-md transition border border-gray-200 hover:border-primary-300"
+          >
+            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+              <Calendar className="w-5 h-5 text-blue-600" />
+            </div>
+            <div>
+              <h3 className="font-medium text-gray-900">會議室預約</h3>
+              <p className="text-sm text-gray-500">預約會議室時段</p>
+            </div>
+          </a>
+          <Link
+            href="/inventory"
+            className="flex items-center gap-3 p-4 bg-white rounded-lg shadow hover:shadow-md transition border border-gray-200 hover:border-primary-300"
+          >
+            <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+              <Gift className="w-5 h-5 text-green-600" />
+            </div>
+            <div>
+              <h3 className="font-medium text-gray-900">禮品領取</h3>
+              <p className="text-sm text-gray-500">瀏覽及領取禮品</p>
+            </div>
+          </Link>
+        </div>
+      </div>
+
+      {/* 會議室區塊標題 */}
+      <div id="meeting-rooms" className="text-center mb-6 px-4 scroll-mt-8">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-900">會議室預約</h2>
       </div>
 
       {/* 使用說明 */}

@@ -28,3 +28,28 @@ model Booking {
   @@index([roomId, date, timeSlot, orderIndex])
   @@index([recurringGroupId])
 }
+
+model Item {
+  id        Int      @id @default(autoincrement())
+  name      String
+  category  String?
+  quantity  Int      @default(0)
+  imageUrl  String?  @map("image_url")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("items")
+}
+
+model ItemRequest {
+  id         Int      @id @default(autoincrement())
+  extension  String
+  department String   // 部門: BB, BC, BD, BF, BN, BI, BS
+  items      String   // JSON: [{"itemId": 1, "name": "禮券", "quantity": 2}]
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@map("item_requests")
+  @@index([extension])
+  @@index([department])
+  @@index([createdAt])
+}
