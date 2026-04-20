@@ -47,8 +47,12 @@ else
         
         # Run migrations to ensure schema is up to date
         npx prisma migrate deploy || {
-            echo "Migration failed, using db push..."
-            npx prisma db push --accept-data-loss
+            echo "Migration failed, trying resolve and deploy..."
+            npx prisma migrate resolve --applied "20260420133500_add_items_and_requests" 2>/dev/null
+            npx prisma migrate deploy 2>/dev/null || {
+                echo "Deploy still failed, using db push..."
+                npx prisma db push
+            }
         }
     else
         echo "Database schema is invalid, recreating..."
