@@ -3,7 +3,7 @@ import path from 'path'
 
 const DATA_DIR = process.env.STORAGE_ROOT || '/app/data'
 const BACKUP_DIR = process.env.BACKUP_ROOT || '/app/backups'
-const DB_FILENAME = 'dev.db'
+const DB_FILENAME = 'booking.db'
 const RETENTION_DAYS = parseInt(process.env.BACKUP_RETENTION_DAYS || '30', 10)
 const BACKUP_INTERVAL_MS = 12 * 60 * 60 * 1000 // every 12 hours
 

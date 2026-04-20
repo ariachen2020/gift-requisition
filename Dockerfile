@@ -5,6 +5,7 @@ WORKDIR /app
 
 # Install system dependencies for backups and cron
 RUN apk add --no-cache \
+    bash \
     sqlite \
     dcron \
     tini

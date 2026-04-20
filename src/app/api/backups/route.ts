@@ -5,7 +5,7 @@ import { isAdmin } from '@/config/admin-extensions'
 
 const DATA_DIR = process.env.STORAGE_ROOT || '/app/data'
 const BACKUP_DIR = process.env.BACKUP_ROOT || '/app/backups'
-const DB_FILENAME = 'dev.db'
+const DB_FILENAME = 'booking.db'
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
