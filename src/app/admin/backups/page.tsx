@@ -71,6 +71,26 @@ export default function AdminBackupsPage() {
     }
   }
 
+  const downloadBackup = async (filename: string) => {
+    try {
+      setError('')
+      const res = await fetch(`/api/backups/download?extension=${extension}&filename=${filename}`)
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || '下載失敗')
+      }
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = filename
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '下載失敗')
+    }
+  }
+
   const deleteBackup = async (filename: string) => {
     if (!confirm(`確定要刪除備份 ${filename}？`)) return
 
@@ -227,13 +247,22 @@ export default function AdminBackupsPage() {
                       {formatDate(backup.date)} · {backup.size}
                     </p>
                   </div>
-                  <button
-                    onClick={() => deleteBackup(backup.filename)}
-                    className="ml-3 p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded"
-                    title="刪除備份"
-                  >
-                    <Trash2 size={16} />
-                  </button>
+                  <div className="flex items-center gap-1 ml-3">
+                    <button
+                      onClick={() => downloadBackup(backup.filename)}
+                      className="p-2 text-blue-400 hover:text-blue-600 hover:bg-blue-50 rounded"
+                      title="下載備份"
+                    >
+                      <Download size={16} />
+                    </button>
+                    <button
+                      onClick={() => deleteBackup(backup.filename)}
+                      className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded"
+                      title="刪除備份"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
