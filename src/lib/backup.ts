@@ -17,7 +17,7 @@ function ensureDir(dir: string) {
 }
 
 export function safeBackup(backupPath: string): boolean {
-  const dbUrl = process.env.DATABASE_URL
+  const dbUrl = process.env.DATABASE_URL?.trim()
   if (!dbUrl) {
     log('DATABASE_URL not set')
     return false
