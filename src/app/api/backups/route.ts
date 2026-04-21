@@ -4,11 +4,9 @@ import path from 'path'
 import { isAdmin } from '@/config/admin-extensions'
 import { safeBackup } from '@/lib/backup'
 
-const DATA_DIR = process.env.STORAGE_ROOT || '/app/data'
 const BACKUP_DIR = process.env.BACKUP_ROOT || '/app/backups'
-const DB_FILENAME = 'booking.db'
 
-const VALID_BACKUP_FILENAME = /^booking_backup_\d{8}_\d{6}\.db$/
+const VALID_BACKUP_FILENAME = /^booking_backup_\d{8}_\d{6}\.sql$/
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
@@ -51,22 +49,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: '無權限' }, { status: 403 })
   }
 
-  const dbPath = path.join(DATA_DIR, DB_FILENAME)
-
-  if (!existsSync(dbPath)) {
-    return NextResponse.json({ error: '找不到資料庫檔案' }, { status: 404 })
-  }
-
   if (!existsSync(BACKUP_DIR)) {
     mkdirSync(BACKUP_DIR, { recursive: true })
   }
 
   const now = new Date()
   const timestamp = now.toISOString().replace(/[:-]/g, '').replace('T', '_').slice(0, 15)
-  const backupFilename = `booking_backup_${timestamp}.db`
+  const backupFilename = `booking_backup_${timestamp}.sql`
   const backupPath = path.join(BACKUP_DIR, backupFilename)
 
-  if (safeBackup(dbPath, backupPath)) {
+  if (safeBackup(backupPath)) {
     const size = statSync(backupPath).size
     return NextResponse.json({
       message: '備份成功',

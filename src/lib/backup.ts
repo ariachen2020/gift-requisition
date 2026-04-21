@@ -2,9 +2,7 @@ import { execSync } from 'child_process'
 import { existsSync, mkdirSync, readdirSync, statSync, unlinkSync } from 'fs'
 import path from 'path'
 
-const DATA_DIR = process.env.STORAGE_ROOT || '/app/data'
 const BACKUP_DIR = process.env.BACKUP_ROOT || '/app/backups'
-const DB_FILENAME = 'booking.db'
 const RETENTION_DAYS = parseInt(process.env.BACKUP_RETENTION_DAYS || '30', 10)
 const BACKUP_INTERVAL_MS = 12 * 60 * 60 * 1000
 
@@ -18,9 +16,15 @@ function ensureDir(dir: string) {
   }
 }
 
-export function safeBackup(dbPath: string, backupPath: string): boolean {
+export function safeBackup(backupPath: string): boolean {
+  const dbUrl = process.env.DATABASE_URL
+  if (!dbUrl) {
+    log('DATABASE_URL not set')
+    return false
+  }
+
   try {
-    execSync(`sqlite3 "${dbPath}" ".backup '${backupPath}'"`, { timeout: 30000 })
+    execSync(`pg_dump "${dbUrl}" > "${backupPath}"`, { timeout: 60000 })
     return true
   } catch {
     return false
@@ -28,25 +32,18 @@ export function safeBackup(dbPath: string, backupPath: string): boolean {
 }
 
 function createBackup() {
-  const dbPath = path.join(DATA_DIR, DB_FILENAME)
-
-  if (!existsSync(dbPath)) {
-    log(`Database not found: ${dbPath}, skipping backup`)
-    return
-  }
-
   ensureDir(BACKUP_DIR)
 
   const now = new Date()
   const timestamp = now.toISOString().replace(/[:-]/g, '').replace('T', '_').slice(0, 15)
-  const backupFilename = `booking_backup_${timestamp}.db`
+  const backupFilename = `booking_backup_${timestamp}.sql`
   const backupPath = path.join(BACKUP_DIR, backupFilename)
 
-  if (safeBackup(dbPath, backupPath)) {
+  if (safeBackup(backupPath)) {
     const size = statSync(backupPath).size
     log(`Backup created: ${backupFilename} (${(size / 1024).toFixed(1)} KB)`)
   } else {
-    log('Backup failed: sqlite3 .backup command error')
+    log('Backup failed: pg_dump command error')
     if (existsSync(backupPath)) unlinkSync(backupPath)
   }
 
@@ -55,7 +52,7 @@ function createBackup() {
 
 function cleanOldBackups() {
   try {
-    const files = readdirSync(BACKUP_DIR).filter(f => f.startsWith('booking_backup_') && f.endsWith('.db'))
+    const files = readdirSync(BACKUP_DIR).filter(f => f.startsWith('booking_backup_') && f.endsWith('.sql'))
     const cutoff = Date.now() - RETENTION_DAYS * 24 * 60 * 60 * 1000
     let deleted = 0
 
