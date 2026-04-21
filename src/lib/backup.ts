@@ -1,6 +1,6 @@
-import { execSync } from 'child_process'
-import { existsSync, mkdirSync, readdirSync, statSync, unlinkSync } from 'fs'
+import { writeFileSync, existsSync, mkdirSync, readdirSync, statSync, unlinkSync } from 'fs'
 import path from 'path'
+import { prisma } from './prisma'
 
 const BACKUP_DIR = process.env.BACKUP_ROOT || '/app/backups'
 const RETENTION_DAYS = parseInt(process.env.BACKUP_RETENTION_DAYS || '30', 10)
@@ -16,34 +16,42 @@ function ensureDir(dir: string) {
   }
 }
 
-export function safeBackup(backupPath: string): boolean {
-  const dbUrl = process.env.DATABASE_URL?.trim()
-  if (!dbUrl) {
-    log('DATABASE_URL not set')
-    return false
-  }
-
+export async function safeBackup(backupPath: string): Promise<boolean> {
   try {
-    execSync(`pg_dump "${dbUrl}" > "${backupPath}"`, { timeout: 60000 })
+    const [bookings, items, itemRequests] = await Promise.all([
+      prisma.booking.findMany(),
+      prisma.item.findMany(),
+      prisma.itemRequest.findMany(),
+    ])
+
+    const data = {
+      exportedAt: new Date().toISOString(),
+      bookings,
+      items,
+      itemRequests,
+    }
+
+    writeFileSync(backupPath, JSON.stringify(data, null, 2))
     return true
-  } catch {
+  } catch (err) {
+    log(`Backup error: ${err}`)
     return false
   }
 }
 
-function createBackup() {
+async function createBackup() {
   ensureDir(BACKUP_DIR)
 
   const now = new Date()
   const timestamp = now.toISOString().replace(/[:-]/g, '').replace('T', '_').slice(0, 15)
-  const backupFilename = `booking_backup_${timestamp}.sql`
+  const backupFilename = `booking_backup_${timestamp}.json`
   const backupPath = path.join(BACKUP_DIR, backupFilename)
 
-  if (safeBackup(backupPath)) {
+  if (await safeBackup(backupPath)) {
     const size = statSync(backupPath).size
     log(`Backup created: ${backupFilename} (${(size / 1024).toFixed(1)} KB)`)
   } else {
-    log('Backup failed: pg_dump command error')
+    log('Backup failed')
     if (existsSync(backupPath)) unlinkSync(backupPath)
   }
 
@@ -52,7 +60,7 @@ function createBackup() {
 
 function cleanOldBackups() {
   try {
-    const files = readdirSync(BACKUP_DIR).filter(f => f.startsWith('booking_backup_') && f.endsWith('.sql'))
+    const files = readdirSync(BACKUP_DIR).filter(f => f.startsWith('booking_backup_') && f.endsWith('.json'))
     const cutoff = Date.now() - RETENTION_DAYS * 24 * 60 * 60 * 1000
     let deleted = 0
 

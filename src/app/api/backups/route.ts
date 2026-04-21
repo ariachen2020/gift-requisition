@@ -6,7 +6,7 @@ import { safeBackup } from '@/lib/backup'
 
 const BACKUP_DIR = process.env.BACKUP_ROOT || '/app/backups'
 
-const VALID_BACKUP_FILENAME = /^booking_backup_\d{8}_\d{6}\.sql$/
+const VALID_BACKUP_FILENAME = /^booking_backup_\d{8}_\d{6}\.json$/
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
@@ -55,10 +55,10 @@ export async function POST(request: NextRequest) {
 
   const now = new Date()
   const timestamp = now.toISOString().replace(/[:-]/g, '').replace('T', '_').slice(0, 15)
-  const backupFilename = `booking_backup_${timestamp}.sql`
+  const backupFilename = `booking_backup_${timestamp}.json`
   const backupPath = path.join(BACKUP_DIR, backupFilename)
 
-  if (safeBackup(backupPath)) {
+  if (await safeBackup(backupPath)) {
     const size = statSync(backupPath).size
     return NextResponse.json({
       message: '備份成功',

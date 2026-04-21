@@ -4,9 +4,7 @@ FROM node:18-alpine
 WORKDIR /app
 
 # Install system dependencies
-RUN apk add --no-cache \
-    bash \
-    postgresql-client
+RUN apk add --no-cache bash
 
 # Copy package files
 COPY package*.json ./
