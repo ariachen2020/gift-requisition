@@ -317,6 +317,7 @@ export default function AdminInventoryPage() {
         <td style="border: 1px solid #333; padding: 8px; font-size: 12px;">${escapeHtml(new Date(req.createdAt).toLocaleString('zh-TW'))}</td>
         <td style="border: 1px solid #333; padding: 8px;">${escapeHtml(req.extension)}</td>
         <td style="border: 1px solid #333; padding: 8px;">${escapeHtml(req.department)}</td>
+        <td style="border: 1px solid #333; padding: 8px;">${escapeHtml(req.reason || '')}</td>
         <td style="border: 1px solid #333; padding: 8px;">${req.items.map(i => `${escapeHtml(i.name)} x${i.quantity}`).join('、')}</td>
       </tr>
     `).join('')
@@ -434,11 +435,12 @@ export default function AdminInventoryPage() {
                 <th style="width: 150px;">日期時間</th>
                 <th style="width: 80px;">分機</th>
                 <th style="width: 60px;">部門</th>
+                <th style="width: 120px;">領用事由</th>
                 <th>領取品項</th>
               </tr>
             </thead>
             <tbody>
-              ${detailRows || '<tr><td colspan="4" style="text-align: center; padding: 20px;">無資料</td></tr>'}
+              ${detailRows || '<tr><td colspan="5" style="text-align: center; padding: 20px;">無資料</td></tr>'}
             </tbody>
           </table>
 
@@ -792,6 +794,7 @@ export default function AdminInventoryPage() {
                       <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">日期</th>
                       <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">分機</th>
                       <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">部門</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">領用事由</th>
                       <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">品項</th>
                     </tr>
                   </thead>
@@ -806,6 +809,9 @@ export default function AdminInventoryPage() {
                           <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm">
                             {req.department}
                           </span>
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-600">
+                          {req.reason || '-'}
                         </td>
                         <td className="px-4 py-3">
                           {req.items.map(item => `${item.name} x${item.quantity}`).join('、')}

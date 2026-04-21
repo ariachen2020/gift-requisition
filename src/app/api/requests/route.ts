@@ -59,10 +59,11 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { extension, department, items } = body as {
+    const { extension, department, items, reason } = body as {
       extension: string
       department: string
       items: ItemRequestItem[]
+      reason?: string
     }
 
     // 驗證必填欄位
@@ -157,6 +158,7 @@ export async function POST(request: NextRequest) {
         data: {
           extension: extension.trim(),
           department: department.trim(),
+          reason: (reason || '').trim(),
           items: JSON.stringify(itemsWithNames),
         },
       })

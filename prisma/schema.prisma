@@ -46,6 +46,7 @@ model ItemRequest {
   extension  String
   department String   // 部門: BB, BC, BD, BF, BN, BI, BS
   items      String   // JSON: [{"itemId": 1, "name": "禮券", "quantity": 2}]
+  reason     String   @default("")
   createdAt  DateTime @default(now()) @map("created_at")
 
   @@map("item_requests")

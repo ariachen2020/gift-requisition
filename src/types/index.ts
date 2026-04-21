@@ -65,6 +65,7 @@ export interface ItemRequest {
   id: number
   extension: string
   department: string
+  reason: string
   items: ItemRequestItem[]
   createdAt: Date
 }

@@ -15,6 +15,7 @@ export default function InventoryPage() {
   const [extension, setExtension] = useState('')
   const [extensionError, setExtensionError] = useState('')
   const [department, setDepartment] = useState('')
+  const [reason, setReason] = useState('')
   const [items, setItems] = useState<Item[]>([])
   const [cart, setCart] = useState<CartItem[]>([])
   const [loading, setLoading] = useState(false)
@@ -25,6 +26,7 @@ export default function InventoryPage() {
     id: number
     extension: string
     department: string
+    reason: string
     items: ItemRequestItem[]
     createdAt: string
   } | null>(null)
@@ -125,6 +127,7 @@ export default function InventoryPage() {
         body: JSON.stringify({
           extension,
           department,
+          reason,
           items: cart.map(c => ({
             itemId: c.itemId,
             name: c.name,
@@ -271,6 +274,12 @@ export default function InventoryPage() {
                 <div class="info-label">所屬部門</div>
                 <div class="info-value">${escapeHtml(receiptData.department)}</div>
               </div>
+              ${receiptData.reason ? `
+              <div class="info-item">
+                <div class="info-label">領用事由</div>
+                <div class="info-value">${escapeHtml(receiptData.reason)}</div>
+              </div>
+              ` : ''}
             </div>
 
             <table>
@@ -307,6 +316,7 @@ export default function InventoryPage() {
     setExtension('')
     setExtensionError('')
     setDepartment('')
+    setReason('')
     setCart([])
     setReceiptData(null)
     setSearchTerm('')
@@ -498,6 +508,18 @@ export default function InventoryPage() {
                   ))}
                 </select>
               </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  領用事由
+                </label>
+                <input
+                  type="text"
+                  value={reason}
+                  onChange={(e) => setReason(e.target.value)}
+                  placeholder="例如：接待外賓、員工慰勞"
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                />
+              </div>
             </div>
 
             {error && (
@@ -554,6 +576,12 @@ export default function InventoryPage() {
                   <span className="text-gray-500">所屬部門</span>
                   <span className="font-medium">{receiptData.department}</span>
                 </div>
+                {receiptData.reason && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">領用事由</span>
+                    <span className="font-medium">{receiptData.reason}</span>
+                  </div>
+                )}
                 <div className="border-t pt-3 mt-3">
                   <div className="text-gray-500 mb-2">領取品項</div>
                   {receiptData.items.map((item, index) => (
