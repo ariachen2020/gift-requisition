@@ -140,17 +140,63 @@ export default function AdminInventoryPage() {
     setShowModal(true)
   }
 
+  const compressImage = (file: File, maxSize = 1200, quality = 0.8): Promise<File> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image()
+      const url = URL.createObjectURL(file)
+      img.onload = () => {
+        URL.revokeObjectURL(url)
+        let { width, height } = img
+        if (width > maxSize || height > maxSize) {
+          if (width > height) {
+            height = Math.round((height * maxSize) / width)
+            width = maxSize
+          } else {
+            width = Math.round((width * maxSize) / height)
+            height = maxSize
+          }
+        }
+        const canvas = document.createElement('canvas')
+        canvas.width = width
+        canvas.height = height
+        const ctx = canvas.getContext('2d')!
+        ctx.drawImage(img, 0, 0, width, height)
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) return reject(new Error('圖片壓縮失敗'))
+            const compressed = new File([blob], file.name.replace(/\.[^.]+$/, '.webp'), {
+              type: 'image/webp',
+            })
+            resolve(compressed)
+          },
+          'image/webp',
+          quality
+        )
+      }
+      img.onerror = () => {
+        URL.revokeObjectURL(url)
+        reject(new Error('無法讀取圖片'))
+      }
+      img.src = url
+    })
+  }
+
   // 處理圖片選擇
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
-    setImageFile(file)
-    const reader = new FileReader()
-    reader.onload = (ev) => {
-      setImagePreview(ev.target?.result as string)
+    try {
+      const compressed = await compressImage(file)
+      setImageFile(compressed)
+      const reader = new FileReader()
+      reader.onload = (ev) => {
+        setImagePreview(ev.target?.result as string)
+      }
+      reader.readAsDataURL(compressed)
+    } catch {
+      setError('圖片處理失敗，請重試')
     }
-    reader.readAsDataURL(file)
   }
 
   const clearImage = () => {
