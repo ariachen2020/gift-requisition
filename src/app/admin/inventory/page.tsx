@@ -264,6 +264,30 @@ export default function AdminInventoryPage() {
     }
   }
 
+  // 刪除領取紀錄
+  const handleDeleteRequest = async (req: ItemRequest) => {
+    const itemsDesc = req.items.map(i => `${i.name} x${i.quantity}`).join('、')
+    if (!confirm(`確定要刪除此筆領取紀錄嗎？\n\n分機：${req.extension}\n部門：${req.department}\n品項：${itemsDesc}\n\n刪除後庫存將自動退回。`)) return
+
+    try {
+      setLoading(true)
+      const res = await fetch(`/api/requests?extension=${extension}&id=${req.id}`, {
+        method: 'DELETE',
+      })
+
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || '刪除失敗')
+      }
+
+      fetchRequests()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '發生錯誤')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   // 計算統計
   const statistics = {
     totalRequests: filteredRequests.length,
@@ -796,6 +820,7 @@ export default function AdminInventoryPage() {
                       <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">部門</th>
                       <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">領用事由</th>
                       <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">品項</th>
+                      <th className="px-4 py-3 text-right text-sm font-medium text-gray-600">操作</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y">
@@ -815,6 +840,15 @@ export default function AdminInventoryPage() {
                         </td>
                         <td className="px-4 py-3">
                           {req.items.map(item => `${item.name} x${item.quantity}`).join('、')}
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <button
+                            onClick={() => handleDeleteRequest(req)}
+                            className="p-2 text-gray-500 hover:text-red-500 hover:bg-gray-100 rounded"
+                            title="刪除此筆紀錄"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
                         </td>
                       </tr>
                     ))}

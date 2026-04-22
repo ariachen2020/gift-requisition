@@ -4,6 +4,69 @@ import { isAdmin } from '@/config/admin-extensions'
 import { isExtensionAllowed } from '@/config/allowed-extensions'
 import { ItemRequestItem, DEPARTMENTS } from '@/types'
 
+// DELETE: 刪除領取紀錄並退回庫存（僅管理員）
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url)
+    const extension = searchParams.get('extension')
+    const idStr = searchParams.get('id')
+
+    if (!extension || !isAdmin(extension)) {
+      return NextResponse.json(
+        { error: '無權限執行此操作' },
+        { status: 403 }
+      )
+    }
+
+    if (!idStr) {
+      return NextResponse.json(
+        { error: '缺少紀錄 ID' },
+        { status: 400 }
+      )
+    }
+
+    const id = parseInt(idStr)
+    if (isNaN(id)) {
+      return NextResponse.json(
+        { error: '無效的紀錄 ID' },
+        { status: 400 }
+      )
+    }
+
+    const result = await prisma.$transaction(async (tx) => {
+      const itemRequest = await tx.itemRequest.findUnique({ where: { id } })
+      if (!itemRequest) {
+        throw new Error('找不到此領取紀錄')
+      }
+
+      const items = JSON.parse(itemRequest.items) as ItemRequestItem[]
+
+      for (const item of items) {
+        const dbItem = await tx.item.findUnique({ where: { id: item.itemId } })
+        if (dbItem) {
+          await tx.item.update({
+            where: { id: item.itemId },
+            data: { quantity: dbItem.quantity + item.quantity },
+          })
+        }
+      }
+
+      await tx.itemRequest.delete({ where: { id } })
+
+      return { id, restoredItems: items }
+    })
+
+    return NextResponse.json({ message: '已刪除紀錄並退回庫存', ...result })
+  } catch (error) {
+    console.error('Error deleting request:', error)
+    const message = error instanceof Error ? error.message : '刪除領取紀錄失敗'
+    return NextResponse.json(
+      { error: message },
+      { status: 400 }
+    )
+  }
+}
+
 // GET: 取得領取紀錄（僅管理員，支援月份篩選）
 export async function GET(request: NextRequest) {
   try {
