@@ -116,6 +116,10 @@ export default function InventoryPage() {
       setError('請選擇部門')
       return
     }
+    if (!reason.trim()) {
+      setError('請填寫領用事由')
+      return
+    }
 
     try {
       setLoading(true)
