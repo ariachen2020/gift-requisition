@@ -71,7 +71,7 @@ export interface ItemRequest {
 }
 
 // 部門清單
-export const DEPARTMENTS = ['BB', 'BC', 'BD', 'BF', 'BN', 'BI', 'BS'] as const
+export const DEPARTMENTS = ['BB', 'BC', 'BD', 'BF', 'BG', 'BN', 'BI', 'BS'] as const
 export type Department = typeof DEPARTMENTS[number]
 
 export interface CartItem {
