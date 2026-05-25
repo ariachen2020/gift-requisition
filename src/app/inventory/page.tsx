@@ -467,11 +467,31 @@ export default function InventoryPage() {
           <div className="bg-white rounded-lg shadow p-6 max-w-md mx-auto">
             <h2 className="text-lg font-semibold mb-4">確認領取清單</h2>
 
+            {cart.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-gray-500 mb-4">清單中沒有品項</p>
+                <button
+                  onClick={() => setStep('browse')}
+                  className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600"
+                >
+                  返回選擇
+                </button>
+              </div>
+            ) : (<>
             <div className="space-y-3 mb-6">
               {cart.map(item => (
                 <div key={item.itemId} className="flex items-center justify-between py-2 border-b">
                   <span className="text-gray-900">{item.name}</span>
-                  <span className="font-medium">x {item.quantity}</span>
+                  <div className="flex items-center gap-3">
+                    <span className="font-medium">x {item.quantity}</span>
+                    <button
+                      onClick={() => setCart(cart.filter(c => c.itemId !== item.itemId))}
+                      className="text-red-400 hover:text-red-600 p-1"
+                      title="刪除此品項"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -550,6 +570,7 @@ export default function InventoryPage() {
                 {loading ? '處理中...' : '確認送出'}
               </button>
             </div>
+            </>)}
           </div>
         )}
 
@@ -597,9 +618,10 @@ export default function InventoryPage() {
                 </div>
               </div>
 
-              <p className="text-sm text-gray-500 text-center mb-4">
-                請下載 PDF 並列印，攜帶至指定地點簽核領取
-              </p>
+            </div>
+
+            <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">
+              填寫完畢後請記得將PDF檔寄給行政。
             </div>
 
             <div className="flex gap-3 mt-4">

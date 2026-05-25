@@ -1004,6 +1004,18 @@ export default function AdminInventoryPage() {
               </div>
             </div>
             <div className="p-4 border-t flex gap-3 justify-end">
+              {editingItem && (
+                <button
+                  onClick={() => {
+                    setShowModal(false)
+                    handleDelete(editingItem)
+                  }}
+                  className="mr-auto flex items-center gap-1 px-4 py-2 text-red-500 border border-red-300 rounded-lg hover:bg-red-50"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  刪除
+                </button>
+              )}
               <button
                 onClick={() => setShowModal(false)}
                 className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
