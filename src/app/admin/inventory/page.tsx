@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, Plus, Pencil, Trash2, Package, Search, FileText, Download, Camera, X } from 'lucide-react'
 import { isAdmin } from '@/config/admin-extensions'
-import { Item, ItemRequest, DEPARTMENTS } from '@/types'
+import { Item, ItemRequest } from '@/types'
 
 type Tab = 'items' | 'reports'
 
@@ -53,7 +53,6 @@ export default function AdminInventoryPage() {
     const now = new Date()
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
   })
-  const [selectedDepartment, setSelectedDepartment] = useState('')
 
   // 驗證管理員身份
   const handleAuth = () => {
@@ -113,11 +112,6 @@ export default function AdminInventoryPage() {
     const matchSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase())
     const matchCategory = !selectedCategory || item.category === selectedCategory
     return matchSearch && matchCategory
-  })
-
-  // 篩選報表（按部門）
-  const filteredRequests = requests.filter(req => {
-    return !selectedDepartment || req.department === selectedDepartment
   })
 
   // 開啟新增/編輯 Modal
@@ -313,7 +307,7 @@ export default function AdminInventoryPage() {
   // 刪除領取紀錄
   const handleDeleteRequest = async (req: ItemRequest) => {
     const itemsDesc = req.items.map(i => `${i.name} x${i.quantity}`).join('、')
-    if (!confirm(`確定要刪除此筆領取紀錄嗎？\n\n分機：${req.extension}\n部門：${req.department}\n品項：${itemsDesc}\n\n刪除後庫存將自動退回。`)) return
+    if (!confirm(`確定要刪除此筆領取紀錄嗎？\n\n分機：${req.extension}\n品項：${itemsDesc}\n\n刪除後庫存將自動退回。`)) return
 
     try {
       setLoading(true)
@@ -336,42 +330,25 @@ export default function AdminInventoryPage() {
 
   // 計算統計
   const statistics = {
-    totalRequests: filteredRequests.length,
-    totalItems: filteredRequests.reduce((sum, req) =>
+    totalRequests: requests.length,
+    totalItems: requests.reduce((sum, req) =>
       sum + req.items.reduce((s, i) => s + i.quantity, 0), 0
     ),
-    byItem: filteredRequests.reduce((acc, req) => {
+    byItem: requests.reduce((acc, req) => {
       req.items.forEach(item => {
         if (!acc[item.name]) acc[item.name] = 0
         acc[item.name] += item.quantity
       })
       return acc
     }, {} as Record<string, number>),
-    byDepartment: requests.reduce((acc, req) => {
-      if (!acc[req.department]) acc[req.department] = { count: 0, items: 0 }
-      acc[req.department].count += 1
-      acc[req.department].items += req.items.reduce((s, i) => s + i.quantity, 0)
-      return acc
-    }, {} as Record<string, { count: number; items: number }>),
   }
 
   // 匯出報表
   const handleExportReport = () => {
     const monthDisplay = selectedMonth.replace('-', '年') + '月'
-    const deptDisplay = selectedDepartment || '全部門'
 
     const printWindow = window.open('', '_blank')
     if (!printWindow) return
-
-    const deptRows = Object.entries(statistics.byDepartment)
-      .sort((a, b) => b[1].items - a[1].items)
-      .map(([dept, data]) => `
-        <tr>
-          <td style="border: 1px solid #333; padding: 10px;">${escapeHtml(dept)}</td>
-          <td style="border: 1px solid #333; padding: 10px; text-align: center;">${data.count}</td>
-          <td style="border: 1px solid #333; padding: 10px; text-align: center;">${data.items}</td>
-        </tr>
-      `).join('')
 
     const itemRows = Object.entries(statistics.byItem)
       .sort((a, b) => b[1] - a[1])
@@ -382,11 +359,10 @@ export default function AdminInventoryPage() {
         </tr>
       `).join('')
 
-    const detailRows = filteredRequests.map(req => `
+    const detailRows = requests.map(req => `
       <tr>
         <td style="border: 1px solid #333; padding: 8px; font-size: 12px;">${escapeHtml(new Date(req.createdAt).toLocaleString('zh-TW'))}</td>
         <td style="border: 1px solid #333; padding: 8px;">${escapeHtml(req.extension)}</td>
-        <td style="border: 1px solid #333; padding: 8px;">${escapeHtml(req.department)}</td>
         <td style="border: 1px solid #333; padding: 8px;">${escapeHtml(req.reason || '')}</td>
         <td style="border: 1px solid #333; padding: 8px;">${req.items.map(i => `${escapeHtml(i.name)} x${i.quantity}`).join('、')}</td>
       </tr>
@@ -454,7 +430,7 @@ export default function AdminInventoryPage() {
         </head>
         <body>
           <h1>禮品領用月報表</h1>
-          <div class="meta">報表期間：${monthDisplay} ｜ 篩選部門：${deptDisplay} ｜ 列印時間：${new Date().toLocaleString('zh-TW')}</div>
+          <div class="meta">報表期間：${monthDisplay} ｜ 列印時間：${new Date().toLocaleString('zh-TW')}</div>
 
           <div class="summary">
             <div class="summary-box">
@@ -470,20 +446,6 @@ export default function AdminInventoryPage() {
               <div class="summary-label">商品種類</div>
             </div>
           </div>
-
-          <h2>各部門領取統計</h2>
-          <table>
-            <thead>
-              <tr>
-                <th>部門</th>
-                <th style="width: 100px; text-align: center;">申請次數</th>
-                <th style="width: 100px; text-align: center;">領取數量</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${deptRows || '<tr><td colspan="3" style="text-align: center; padding: 20px;">無資料</td></tr>'}
-            </tbody>
-          </table>
 
           <h2>各商品領取統計</h2>
           <table>
@@ -504,13 +466,12 @@ export default function AdminInventoryPage() {
               <tr>
                 <th style="width: 150px;">日期時間</th>
                 <th style="width: 80px;">分機</th>
-                <th style="width: 60px;">部門</th>
                 <th style="width: 120px;">領用事由</th>
                 <th>領取品項</th>
               </tr>
             </thead>
             <tbody>
-              ${detailRows || '<tr><td colspan="5" style="text-align: center; padding: 20px;">無資料</td></tr>'}
+              ${detailRows || '<tr><td colspan="4" style="text-align: center; padding: 20px;">無資料</td></tr>'}
             </tbody>
           </table>
 
@@ -764,19 +725,6 @@ export default function AdminInventoryPage() {
                     className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                   />
                 </div>
-                <div className="flex items-center gap-2">
-                  <label className="text-sm font-medium text-gray-600">部門：</label>
-                  <select
-                    value={selectedDepartment}
-                    onChange={(e) => setSelectedDepartment(e.target.value)}
-                    className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  >
-                    <option value="">全部門</option>
-                    {DEPARTMENTS.map(dept => (
-                      <option key={dept} value={dept}>{dept}</option>
-                    ))}
-                  </select>
-                </div>
                 <div className="flex-1" />
                 <button
                   onClick={handleExportReport}
@@ -806,35 +754,6 @@ export default function AdminInventoryPage() {
               </div>
             </div>
 
-            {/* 部門統計 */}
-            {Object.keys(statistics.byDepartment).length > 0 && (
-              <div className="bg-white rounded-lg shadow p-4">
-                <h3 className="font-medium mb-3">各部門領取統計</h3>
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-4 py-2 text-left text-sm font-medium text-gray-600">部門</th>
-                        <th className="px-4 py-2 text-center text-sm font-medium text-gray-600">申請次數</th>
-                        <th className="px-4 py-2 text-center text-sm font-medium text-gray-600">領取數量</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y">
-                      {Object.entries(statistics.byDepartment)
-                        .sort((a, b) => b[1].items - a[1].items)
-                        .map(([dept, data]) => (
-                          <tr key={dept} className="hover:bg-gray-50">
-                            <td className="px-4 py-2 font-medium">{dept}</td>
-                            <td className="px-4 py-2 text-center">{data.count}</td>
-                            <td className="px-4 py-2 text-center font-medium">{data.items}</td>
-                          </tr>
-                        ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
             {/* 商品統計 */}
             {Object.keys(statistics.byItem).length > 0 && (
               <div className="bg-white rounded-lg shadow p-4">
@@ -857,30 +776,24 @@ export default function AdminInventoryPage() {
               <h3 className="font-medium p-4 border-b">詳細領取紀錄</h3>
               {loading ? (
                 <div className="text-center py-8 text-gray-500">載入中...</div>
-              ) : filteredRequests.length > 0 ? (
+              ) : requests.length > 0 ? (
                 <table className="w-full">
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">日期</th>
                       <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">分機</th>
-                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">部門</th>
                       <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">領用事由</th>
                       <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">品項</th>
                       <th className="px-4 py-3 text-right text-sm font-medium text-gray-600">操作</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y">
-                    {filteredRequests.map(req => (
+                    {requests.map(req => (
                       <tr key={req.id} className="hover:bg-gray-50">
                         <td className="px-4 py-3 text-sm">
                           {new Date(req.createdAt).toLocaleString('zh-TW')}
                         </td>
                         <td className="px-4 py-3">{req.extension}</td>
-                        <td className="px-4 py-3">
-                          <span className="px-2 py-1 bg-primary-50 text-primary-700 rounded text-sm">
-                            {req.department}
-                          </span>
-                        </td>
                         <td className="px-4 py-3 text-sm text-gray-600">
                           {req.reason || '-'}
                         </td>

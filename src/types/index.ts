@@ -18,15 +18,10 @@ export interface ItemRequestItem {
 export interface ItemRequest {
   id: number
   extension: string
-  department: string
   reason: string
   items: ItemRequestItem[]
   createdAt: Date
 }
-
-// 部門清單
-export const DEPARTMENTS = ['BB', 'BC', 'BD', 'BF', 'BG', 'BN', 'BI', 'BS'] as const
-export type Department = typeof DEPARTMENTS[number]
 
 export interface CartItem {
   itemId: number

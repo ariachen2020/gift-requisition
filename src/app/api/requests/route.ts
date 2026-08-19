@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { isAdmin } from '@/config/admin-extensions'
 import { isExtensionAllowed } from '@/config/allowed-extensions'
-import { ItemRequestItem, DEPARTMENTS } from '@/types'
+import { ItemRequestItem } from '@/types'
 
 // DELETE: 刪除領取紀錄並退回庫存（僅管理員）
 export async function DELETE(request: NextRequest) {
@@ -122,9 +122,8 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { extension, department, items, reason } = body as {
+    const { extension, items, reason } = body as {
       extension: string
-      department: string
       items: ItemRequestItem[]
       reason?: string
     }
@@ -141,21 +140,6 @@ export async function POST(request: NextRequest) {
     if (!isExtensionAllowed(extension.trim())) {
       return NextResponse.json(
         { error: '此分機號碼不在系統允許的清單中' },
-        { status: 400 }
-      )
-    }
-
-    if (!department || typeof department !== 'string' || department.trim() === '') {
-      return NextResponse.json(
-        { error: '部門為必填' },
-        { status: 400 }
-      )
-    }
-
-    // 驗證部門是否有效
-    if (!DEPARTMENTS.includes(department as any)) {
-      return NextResponse.json(
-        { error: '無效的部門選項' },
         { status: 400 }
       )
     }
@@ -220,7 +204,6 @@ export async function POST(request: NextRequest) {
       const itemRequest = await tx.itemRequest.create({
         data: {
           extension: extension.trim(),
-          department: department.trim(),
           reason: (reason || '').trim(),
           items: JSON.stringify(itemsWithNames),
         },

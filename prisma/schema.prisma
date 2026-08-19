@@ -25,13 +25,11 @@ model Item {
 model ItemRequest {
   id         Int      @id @default(autoincrement())
   extension  String
-  department String   // 部門: BB, BC, BD, BF, BN, BI, BS
   items      String   // JSON: [{"itemId": 1, "name": "禮券", "quantity": 2}]
   reason     String   @default("")
   createdAt  DateTime @default(now()) @map("created_at")
 
   @@map("item_requests")
   @@index([extension])
-  @@index([department])
   @@index([createdAt])
 }

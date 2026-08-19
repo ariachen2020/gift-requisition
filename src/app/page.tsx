@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { ShoppingCart, Plus, Minus, X, Package, FileDown, Settings, Database } from 'lucide-react'
-import { Item, CartItem, ItemRequestItem, DEPARTMENTS } from '@/types'
+import { Item, CartItem, ItemRequestItem } from '@/types'
 import { isExtensionAllowed } from '@/config/allowed-extensions'
 
 function escapeHtml(str: string): string {
@@ -14,7 +14,6 @@ export default function HomePage() {
   const [step, setStep] = useState<'browse' | 'confirm' | 'receipt'>('browse')
   const [extension, setExtension] = useState('')
   const [extensionError, setExtensionError] = useState('')
-  const [department, setDepartment] = useState('')
   const [reason, setReason] = useState('')
   const [items, setItems] = useState<Item[]>([])
   const [cart, setCart] = useState<CartItem[]>([])
@@ -25,7 +24,6 @@ export default function HomePage() {
   const [receiptData, setReceiptData] = useState<{
     id: number
     extension: string
-    department: string
     reason: string
     items: ItemRequestItem[]
     createdAt: string
@@ -112,10 +110,6 @@ export default function HomePage() {
       setExtensionError('此分機號碼不在系統允許的清單中')
       return
     }
-    if (!department) {
-      setError('請選擇部門')
-      return
-    }
     if (!reason.trim()) {
       setError('請填寫領用事由')
       return
@@ -130,7 +124,6 @@ export default function HomePage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           extension,
-          department,
           reason,
           items: cart.map(c => ({
             itemId: c.itemId,
@@ -274,10 +267,6 @@ export default function HomePage() {
                 <div class="info-label">領用分機</div>
                 <div class="info-value">${escapeHtml(receiptData.extension)}</div>
               </div>
-              <div class="info-item">
-                <div class="info-label">所屬部門</div>
-                <div class="info-value">${escapeHtml(receiptData.department)}</div>
-              </div>
               ${receiptData.reason ? `
               <div class="info-item">
                 <div class="info-label">領用事由</div>
@@ -319,7 +308,6 @@ export default function HomePage() {
     setStep('browse')
     setExtension('')
     setExtensionError('')
-    setDepartment('')
     setReason('')
     setCart([])
     setReceiptData(null)
@@ -514,21 +502,6 @@ export default function HomePage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  所屬部門 <span className="text-red-500">*</span>
-                </label>
-                <select
-                  value={department}
-                  onChange={(e) => setDepartment(e.target.value)}
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                >
-                  <option value="">請選擇部門</option>
-                  {DEPARTMENTS.map(dept => (
-                    <option key={dept} value={dept}>{dept}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
                   領用事由
                 </label>
                 <input
@@ -591,10 +564,6 @@ export default function HomePage() {
                 <div className="flex justify-between">
                   <span className="text-gray-500">領用分機</span>
                   <span className="font-medium">{receiptData.extension}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">所屬部門</span>
-                  <span className="font-medium">{receiptData.department}</span>
                 </div>
                 {receiptData.reason && (
                   <div className="flex justify-between">
