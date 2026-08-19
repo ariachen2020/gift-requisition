@@ -988,7 +988,6 @@ export default function AdminInventoryPage() {
                   ref={fileInputRef}
                   type="file"
                   accept="image/*"
-                  capture="environment"
                   onChange={handleImageSelect}
                   className="hidden"
                 />
