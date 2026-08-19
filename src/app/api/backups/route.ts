@@ -6,7 +6,7 @@ import { safeBackup } from '@/lib/backup'
 
 const BACKUP_DIR = process.env.BACKUP_ROOT || '/app/backups'
 
-const VALID_BACKUP_FILENAME = /^booking_backup_\d{8}_\d{6}\.json$/
+const VALID_BACKUP_FILENAME = /^gift_backup_\d{8}_\d{6}\.json$/
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
 
   const now = new Date()
   const timestamp = now.toISOString().replace(/[:-]/g, '').replace('T', '_').slice(0, 15)
-  const backupFilename = `booking_backup_${timestamp}.json`
+  const backupFilename = `gift_backup_${timestamp}.json`
   const backupPath = path.join(BACKUP_DIR, backupFilename)
 
   if (await safeBackup(backupPath)) {

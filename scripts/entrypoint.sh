@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-echo "=== Starting Meetingroom App ==="
+echo "=== Starting Gift Requisition App ==="
 
 mkdir -p /app/data/uploads /app/backups
 

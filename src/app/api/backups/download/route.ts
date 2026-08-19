@@ -4,7 +4,7 @@ import path from 'path'
 import { isAdmin } from '@/config/admin-extensions'
 
 const BACKUP_DIR = process.env.BACKUP_ROOT || '/app/backups'
-const VALID_BACKUP_FILENAME = /^booking_backup_\d{8}_\d{6}\.json$/
+const VALID_BACKUP_FILENAME = /^gift_backup_\d{8}_\d{6}\.json$/
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)

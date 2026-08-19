@@ -18,15 +18,13 @@ function ensureDir(dir: string) {
 
 export async function safeBackup(backupPath: string): Promise<boolean> {
   try {
-    const [bookings, items, itemRequests] = await Promise.all([
-      prisma.booking.findMany(),
+    const [items, itemRequests] = await Promise.all([
       prisma.item.findMany(),
       prisma.itemRequest.findMany(),
     ])
 
     const data = {
       exportedAt: new Date().toISOString(),
-      bookings,
       items,
       itemRequests,
     }
@@ -44,7 +42,7 @@ async function createBackup() {
 
   const now = new Date()
   const timestamp = now.toISOString().replace(/[:-]/g, '').replace('T', '_').slice(0, 15)
-  const backupFilename = `booking_backup_${timestamp}.json`
+  const backupFilename = `gift_backup_${timestamp}.json`
   const backupPath = path.join(BACKUP_DIR, backupFilename)
 
   if (await safeBackup(backupPath)) {
@@ -60,7 +58,7 @@ async function createBackup() {
 
 function cleanOldBackups() {
   try {
-    const files = readdirSync(BACKUP_DIR).filter(f => f.startsWith('booking_backup_') && f.endsWith('.json'))
+    const files = readdirSync(BACKUP_DIR).filter(f => f.startsWith('gift_backup_') && f.endsWith('.json'))
     const cutoff = Date.now() - RETENTION_DAYS * 24 * 60 * 60 * 1000
     let deleted = 0
 
@@ -77,7 +75,7 @@ function cleanOldBackups() {
       log(`Cleaned up ${deleted} old backup(s)`)
     }
 
-    const remaining = readdirSync(BACKUP_DIR).filter(f => f.startsWith('booking_backup_')).length
+    const remaining = readdirSync(BACKUP_DIR).filter(f => f.startsWith('gift_backup_')).length
     log(`Total backups: ${remaining}`)
   } catch (err) {
     log(`Cleanup error: ${err}`)

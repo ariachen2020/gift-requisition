@@ -1,18 +1,5 @@
--- CreateTable
-CREATE TABLE "public"."bookings" (
-    "id" SERIAL NOT NULL,
-    "room_id" TEXT NOT NULL,
-    "date" TEXT NOT NULL,
-    "time_slot" TEXT NOT NULL,
-    "title" TEXT,
-    "booker" TEXT NOT NULL,
-    "extension" TEXT NOT NULL,
-    "order_index" INTEGER NOT NULL DEFAULT 1,
-    "recurring_group_id" TEXT,
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "bookings_pkey" PRIMARY KEY ("id")
-);
+-- CreateSchema
+CREATE SCHEMA IF NOT EXISTS "public";
 
 -- CreateTable
 CREATE TABLE "public"."items" (
@@ -40,18 +27,6 @@ CREATE TABLE "public"."item_requests" (
 );
 
 -- CreateIndex
-CREATE INDEX "bookings_room_id_date_idx" ON "public"."bookings"("room_id", "date");
-
--- CreateIndex
-CREATE INDEX "bookings_room_id_date_time_slot_idx" ON "public"."bookings"("room_id", "date", "time_slot");
-
--- CreateIndex
-CREATE INDEX "bookings_room_id_date_time_slot_order_index_idx" ON "public"."bookings"("room_id", "date", "time_slot", "order_index");
-
--- CreateIndex
-CREATE INDEX "bookings_recurring_group_id_idx" ON "public"."bookings"("recurring_group_id");
-
--- CreateIndex
 CREATE INDEX "item_requests_extension_idx" ON "public"."item_requests"("extension");
 
 -- CreateIndex
@@ -59,3 +34,4 @@ CREATE INDEX "item_requests_department_idx" ON "public"."item_requests"("departm
 
 -- CreateIndex
 CREATE INDEX "item_requests_created_at_idx" ON "public"."item_requests"("created_at");
+
