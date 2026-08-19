@@ -421,7 +421,7 @@ export default function AdminInventoryPage() {
             .summary-label { font-size: 12px; color: #666; margin-top: 5px; }
             table { width: 100%; border-collapse: collapse; margin-top: 10px; }
             th {
-              background-color: #4a5568;
+              background-color: #1c57a5;
               color: white;
               padding: 10px;
               text-align: left;
@@ -540,7 +540,7 @@ export default function AdminInventoryPage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-lg shadow p-6 w-full max-w-md">
-          <h1 className="text-xl font-bold text-center mb-6">禮品庫存管理</h1>
+          <h1 className="text-xl font-bold text-center mb-6 text-primary-600">禮品庫存管理</h1>
           <p className="text-gray-600 text-center mb-4">請輸入管理員分機號碼</p>
           <input
             type="text"
@@ -574,14 +574,14 @@ export default function AdminInventoryPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm">
+      <header className="bg-white shadow-sm border-t-4 border-accent-500">
         <div className="max-w-6xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Link href="/" className="text-gray-600 hover:text-gray-900">
                 <ArrowLeft className="w-6 h-6" />
               </Link>
-              <h1 className="text-xl font-bold text-gray-900">禮品庫存管理</h1>
+              <h1 className="text-xl font-bold text-primary-600">禮品庫存管理</h1>
             </div>
             <span className="text-sm text-gray-500">管理員：{extension}</span>
           </div>
@@ -792,15 +792,15 @@ export default function AdminInventoryPage() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="bg-white rounded-lg shadow p-4">
                 <div className="text-sm text-gray-500">總申請數</div>
-                <div className="text-2xl font-bold text-gray-900">{statistics.totalRequests}</div>
+                <div className="text-2xl font-bold text-primary-600">{statistics.totalRequests}</div>
               </div>
               <div className="bg-white rounded-lg shadow p-4">
                 <div className="text-sm text-gray-500">總領取數量</div>
-                <div className="text-2xl font-bold text-gray-900">{statistics.totalItems}</div>
+                <div className="text-2xl font-bold text-primary-600">{statistics.totalItems}</div>
               </div>
               <div className="bg-white rounded-lg shadow p-4">
                 <div className="text-sm text-gray-500">商品種類</div>
-                <div className="text-2xl font-bold text-gray-900">
+                <div className="text-2xl font-bold text-primary-600">
                   {Object.keys(statistics.byItem).length}
                 </div>
               </div>
@@ -877,7 +877,7 @@ export default function AdminInventoryPage() {
                         </td>
                         <td className="px-4 py-3">{req.extension}</td>
                         <td className="px-4 py-3">
-                          <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm">
+                          <span className="px-2 py-1 bg-primary-50 text-primary-700 rounded text-sm">
                             {req.department}
                           </span>
                         </td>

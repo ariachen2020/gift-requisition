@@ -131,7 +131,7 @@ export default function AdminBackupsPage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-lg shadow p-6 w-full max-w-md">
-          <h1 className="text-xl font-bold text-center mb-6">資料庫備份管理</h1>
+          <h1 className="text-xl font-bold text-center mb-6 text-primary-600">資料庫備份管理</h1>
           <p className="text-gray-600 text-center mb-4">請輸入管理員分機號碼</p>
           <input
             type="text"
@@ -171,7 +171,7 @@ export default function AdminBackupsPage() {
             <ArrowLeft size={20} />
           </Link>
           <Database size={24} className="text-primary-500" />
-          <h1 className="text-xl font-bold">資料庫備份管理</h1>
+          <h1 className="text-xl font-bold text-primary-600">資料庫備份管理</h1>
         </div>
 
         {/* Stats & Actions */}
@@ -220,7 +220,7 @@ export default function AdminBackupsPage() {
         )}
 
         {/* Info */}
-        <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-lg mb-4 text-sm">
+        <div className="bg-primary-50 border border-primary-200 text-primary-700 px-4 py-3 rounded-lg mb-4 text-sm">
           系統每 12 小時自動備份一次，備份保留 30 天。您也可以手動建立備份。
         </div>
 
@@ -250,7 +250,7 @@ export default function AdminBackupsPage() {
                   <div className="flex items-center gap-1 ml-3">
                     <button
                       onClick={() => downloadBackup(backup.filename)}
-                      className="p-2 text-blue-400 hover:text-blue-600 hover:bg-blue-50 rounded"
+                      className="p-2 text-primary-400 hover:text-primary-600 hover:bg-primary-50 rounded"
                       title="下載備份"
                     >
                       <Download size={16} />

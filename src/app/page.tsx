@@ -228,7 +228,7 @@ export default function HomePage() {
               margin-top: 20px;
             }
             th {
-              background-color: #4a5568;
+              background-color: #1c57a5;
               color: white;
               padding: 12px;
               text-align: left;
@@ -331,9 +331,9 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Header */}
-      <header className="bg-white shadow-sm">
+      <header className="bg-white shadow-sm border-t-4 border-accent-500">
         <div className="max-w-4xl mx-auto px-4 py-4">
-          <h1 className="text-xl font-bold text-gray-900">禮品領用系統</h1>
+          <h1 className="text-xl font-bold text-primary-600">禮品領用系統</h1>
         </div>
       </header>
 
@@ -447,7 +447,7 @@ export default function HomePage() {
                 </button>
                 <button
                   onClick={() => setStep('confirm')}
-                  className="flex items-center gap-2 px-6 py-4 bg-primary-500 text-white rounded-full shadow-lg hover:bg-primary-600"
+                  className="flex items-center gap-2 px-6 py-4 bg-accent-500 text-white rounded-full shadow-lg hover:bg-accent-600"
                 >
                   <ShoppingCart className="w-6 h-6" />
                   <span className="font-medium">確認領取 ({totalItems})</span>

@@ -11,8 +11,8 @@
 ## 權限
 
 分機白名單設定在 src/config/allowed-extensions.ts（共 7 個分機）。
-管理員分機設定在 src/config/admin-extensions.ts（8548）。
-要增減人員時，直接修改這兩個檔案後重新部署即可。
+管理員分機設定在 src/config/admin-extensions.ts（目前直接沿用白名單，所有分機都是管理員）。
+要增減人員時，修改 allowed-extensions.ts 後重新部署即可；若日後要區分一般使用者與管理員，再到 admin-extensions.ts 自行列清單。
 
 ## 技術架構
 
