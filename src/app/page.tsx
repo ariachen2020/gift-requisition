@@ -177,7 +177,7 @@ export default function HomePage() {
       <!DOCTYPE html>
       <html>
         <head>
-          <title>公務禮品領用單 - ${receiptData.id}</title>
+          <title>禮品領用單 - ${receiptData.id}</title>
           <style>
             @page {
               size: A4;
@@ -263,7 +263,7 @@ export default function HomePage() {
         <body>
           <div class="container">
             <div class="receipt-id">單號：${String(receiptData.id).padStart(6, '0')}</div>
-            <h1>公務禮品領用單</h1>
+            <h1>禮品領用單</h1>
 
             <div class="info-section">
               <div class="info-item">
@@ -333,7 +333,7 @@ export default function HomePage() {
       {/* Header */}
       <header className="bg-white shadow-sm">
         <div className="max-w-4xl mx-auto px-4 py-4">
-          <h1 className="text-xl font-bold text-gray-900">公務禮品領用系統</h1>
+          <h1 className="text-xl font-bold text-gray-900">禮品領用系統</h1>
         </div>
       </header>
 

@@ -1,4 +1,4 @@
-// 公務禮品庫存相關類型
+// 禮品庫存相關類型
 export interface Item {
   id: number
   name: string

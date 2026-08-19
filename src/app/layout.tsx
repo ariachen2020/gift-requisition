@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: '公務禮品領用系統',
-  description: '公務禮品瀏覽、領用與庫存管理系統',
+  title: '禮品領用系統',
+  description: '禮品瀏覽、領用與庫存管理系統',
 }
 
 export default function RootLayout({

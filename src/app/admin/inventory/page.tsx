@@ -396,7 +396,7 @@ export default function AdminInventoryPage() {
       <!DOCTYPE html>
       <html>
         <head>
-          <title>公務禮品領用月報表 - ${monthDisplay}</title>
+          <title>禮品領用月報表 - ${monthDisplay}</title>
           <style>
             @page { size: A4; margin: 15mm; }
             body {
@@ -453,7 +453,7 @@ export default function AdminInventoryPage() {
           </style>
         </head>
         <body>
-          <h1>公務禮品領用月報表</h1>
+          <h1>禮品領用月報表</h1>
           <div class="meta">報表期間：${monthDisplay} ｜ 篩選部門：${deptDisplay} ｜ 列印時間：${new Date().toLocaleString('zh-TW')}</div>
 
           <div class="summary">
