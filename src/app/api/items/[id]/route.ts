@@ -3,6 +3,7 @@ import { existsSync, unlinkSync } from 'fs'
 import path from 'path'
 import { prisma } from '@/lib/prisma'
 import { isAdmin } from '@/config/admin-extensions'
+import { logItemAction } from '@/lib/item-log'
 
 const UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(process.env.STORAGE_ROOT || '/app/data', 'uploads')
 
@@ -122,6 +123,31 @@ export async function PUT(
       data: updateData,
     })
 
+    const noteParts: string[] = []
+    if (item.name !== existingItem.name) {
+      noteParts.push(`名稱「${existingItem.name}」改為「${item.name}」`)
+    }
+    if (item.category !== existingItem.category) {
+      noteParts.push(`分類「${existingItem.category || '無'}」改為「${item.category || '無'}」`)
+    }
+    if (item.imageUrl !== existingItem.imageUrl) {
+      noteParts.push('更新圖片')
+    }
+    const quantityChanged = item.quantity !== existingItem.quantity
+
+    if (quantityChanged || noteParts.length > 0) {
+      await logItemAction({
+        extension,
+        action: 'update',
+        itemId: item.id,
+        itemName: item.name,
+        category: item.category,
+        quantityFrom: quantityChanged ? existingItem.quantity : null,
+        quantityTo: quantityChanged ? item.quantity : null,
+        note: noteParts.join('；'),
+      })
+    }
+
     return NextResponse.json(item)
   } catch (error) {
     console.error('Error updating item:', error)
@@ -174,6 +200,15 @@ export async function DELETE(
 
     await prisma.item.delete({
       where: { id: itemId },
+    })
+
+    await logItemAction({
+      extension,
+      action: 'delete',
+      itemId: existingItem.id,
+      itemName: existingItem.name,
+      category: existingItem.category,
+      quantityFrom: existingItem.quantity,
     })
 
     return NextResponse.json({ success: true })

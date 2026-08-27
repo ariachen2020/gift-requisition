@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { isAdmin } from '@/config/admin-extensions'
+import { logItemAction } from '@/lib/item-log'
 
 // GET: 取得所有商品列表
 export async function GET(request: NextRequest) {
@@ -75,6 +76,15 @@ export async function POST(request: NextRequest) {
         quantity: quantity ?? 0,
         imageUrl: imageUrl?.trim() || null,
       },
+    })
+
+    await logItemAction({
+      extension,
+      action: 'create',
+      itemId: item.id,
+      itemName: item.name,
+      category: item.category,
+      quantityTo: item.quantity,
     })
 
     return NextResponse.json(item, { status: 201 })

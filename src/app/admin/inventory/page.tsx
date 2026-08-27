@@ -2,11 +2,11 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Plus, Pencil, Trash2, Package, Search, FileText, Download, Camera, X } from 'lucide-react'
+import { ArrowLeft, Plus, Pencil, Trash2, Package, Search, FileText, Download, Camera, X, History } from 'lucide-react'
 import { isAdmin } from '@/config/admin-extensions'
-import { Item, ItemRequest } from '@/types'
+import { Item, ItemRequest, ItemLog } from '@/types'
 
-type Tab = 'items' | 'reports'
+type Tab = 'items' | 'reports' | 'logs'
 
 function escapeHtml(str: string): string {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
@@ -27,6 +27,7 @@ export default function AdminInventoryPage() {
   const [activeTab, setActiveTab] = useState<Tab>('items')
   const [items, setItems] = useState<Item[]>([])
   const [requests, setRequests] = useState<ItemRequest[]>([])
+  const [logs, setLogs] = useState<ItemLog[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -94,12 +95,29 @@ export default function AdminInventoryPage() {
     }
   }
 
+  // 取得商品異動紀錄
+  const fetchLogs = async () => {
+    try {
+      setLoading(true)
+      const res = await fetch(`/api/item-logs?extension=${extension}&month=${selectedMonth}`)
+      if (!res.ok) throw new Error('取得異動紀錄失敗')
+      const data = await res.json()
+      setLogs(data)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '發生錯誤')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   useEffect(() => {
     if (isAuthed) {
       if (activeTab === 'items') {
         fetchItems()
-      } else {
+      } else if (activeTab === 'reports') {
         fetchRequests()
+      } else {
+        fetchLogs()
       }
     }
   }, [isAuthed, activeTab, selectedMonth])
@@ -326,6 +344,20 @@ export default function AdminInventoryPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  // 異動紀錄顯示用
+  const actionDisplay: Record<ItemLog['action'], { label: string; className: string }> = {
+    create: { label: '新增', className: 'bg-green-100 text-green-700' },
+    update: { label: '修改', className: 'bg-blue-100 text-blue-700' },
+    delete: { label: '刪除', className: 'bg-red-100 text-red-700' },
+  }
+
+  const logQuantityText = (log: ItemLog) => {
+    if (log.action === 'create') return `庫存 ${log.quantityTo ?? 0}`
+    if (log.action === 'delete') return `刪除時庫存 ${log.quantityFrom ?? 0}`
+    if (log.quantityFrom === null && log.quantityTo === null) return '-'
+    return `${log.quantityFrom ?? 0} → ${log.quantityTo ?? 0}`
   }
 
   // 計算統計
@@ -574,6 +606,17 @@ export default function AdminInventoryPage() {
             <FileText className="w-5 h-5" />
             領取報表
           </button>
+          <button
+            onClick={() => setActiveTab('logs')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition ${
+              activeTab === 'logs'
+                ? 'bg-primary-500 text-white'
+                : 'bg-white text-gray-600 hover:bg-gray-100'
+            }`}
+          >
+            <History className="w-5 h-5" />
+            異動紀錄
+          </button>
         </div>
 
         {error && (
@@ -816,6 +859,71 @@ export default function AdminInventoryPage() {
               ) : (
                 <div className="text-center py-8 text-gray-500">
                   此月份沒有領取紀錄
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* 異動紀錄 Tab */}
+        {activeTab === 'logs' && (
+          <div className="space-y-4">
+            {/* 月份篩選 */}
+            <div className="bg-white rounded-lg shadow p-4">
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium text-gray-600">月份：</label>
+                <input
+                  type="month"
+                  value={selectedMonth}
+                  onChange={(e) => setSelectedMonth(e.target.value)}
+                  className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+
+            {/* 紀錄列表 */}
+            <div className="bg-white rounded-lg shadow overflow-hidden">
+              <h3 className="font-medium p-4 border-b">商品異動紀錄（新增 / 修改 / 刪除）</h3>
+              {loading ? (
+                <div className="text-center py-8 text-gray-500">載入中...</div>
+              ) : logs.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">時間</th>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">分機</th>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">動作</th>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">品項</th>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">分類</th>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">數量變化</th>
+                        <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">備註</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y">
+                      {logs.map(log => (
+                        <tr key={log.id} className="hover:bg-gray-50">
+                          <td className="px-4 py-3 text-sm whitespace-nowrap">
+                            {new Date(log.createdAt).toLocaleString('zh-TW')}
+                          </td>
+                          <td className="px-4 py-3">{log.extension}</td>
+                          <td className="px-4 py-3">
+                            <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${actionDisplay[log.action].className}`}>
+                              {actionDisplay[log.action].label}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 font-medium">{log.itemName}</td>
+                          <td className="px-4 py-3 text-gray-500">{log.category || '-'}</td>
+                          <td className="px-4 py-3 text-sm whitespace-nowrap">{logQuantityText(log)}</td>
+                          <td className="px-4 py-3 text-sm text-gray-600">{log.note || '-'}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  此月份沒有異動紀錄
                 </div>
               )}
             </div>

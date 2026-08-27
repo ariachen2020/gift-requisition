@@ -22,6 +22,24 @@ model Item {
   @@map("items")
 }
 
+// 管理員商品異動紀錄（新增 / 修改 / 刪除）
+model ItemLog {
+  id           Int      @id @default(autoincrement())
+  extension    String
+  action       String   // create | update | delete
+  itemId       Int?     @map("item_id")
+  itemName     String   @map("item_name")
+  category     String?
+  quantityFrom Int?     @map("quantity_from")
+  quantityTo   Int?     @map("quantity_to")
+  note         String   @default("")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@map("item_logs")
+  @@index([createdAt])
+  @@index([itemId])
+}
+
 model ItemRequest {
   id         Int      @id @default(autoincrement())
   extension  String

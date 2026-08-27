@@ -23,6 +23,19 @@ export interface ItemRequest {
   createdAt: Date
 }
 
+export interface ItemLog {
+  id: number
+  extension: string
+  action: 'create' | 'update' | 'delete'
+  itemId: number | null
+  itemName: string
+  category: string | null
+  quantityFrom: number | null
+  quantityTo: number | null
+  note: string
+  createdAt: Date
+}
+
 export interface CartItem {
   itemId: number
   name: string
