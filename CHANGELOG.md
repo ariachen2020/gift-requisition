@@ -11,6 +11,13 @@
 - 備份機制：Railway 線上連續備份（PITR）＋ 本機每週自動備份（~/railway-backups）
 - 待辦：正式公告切換前，需先將 Zeabur 端最新資料重新同步到 Railway
 
+遷移後修復：商品圖片無法顯示
+
+- 原因：遷移時資料庫有搬，但商品圖片存在主機儲存空間（volume），沒跟著搬過去，新站圖片全部 404
+- 處理：從本機遷移備份（backups/zeabur-migration/uploads）把 22 張圖片透過 railway ssh 傳回 Railway volume，逐張核對檔案校驗碼一致，實測 22 張全部正常顯示
+- 強化備份：本機每週自動備份新增「商品圖片」項目，每 7 天從 Railway volume 抓一份 uploads 壓縮檔存到 ~/railway-backups/gift-requisition/，保留 60 天，失敗會在桌面留提醒檔
+- 注意：圖片備份透過 railway ssh 執行，需保持 Railway CLI 登入狀態
+
 ## 2026-08-27
 
 新增商品異動紀錄
