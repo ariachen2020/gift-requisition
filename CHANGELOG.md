@@ -1,5 +1,16 @@
 # 更新紀錄
 
+## 2026-10-17
+
+系統遷移至 Railway（Zeabur 停運）
+
+- Zeabur 官方宣布 2026 年底結束營運，本系統已完整遷移至 Railway，新網址：https://bbgift.up.railway.app（沿用 bbgift 名稱）
+- 資料庫（22 項禮品、3 筆異動、2 筆領用申請）與 22 張商品圖片全數還原並核對一致
+- Next.js 由 14.2.33 升級至 14.2.35（修補兩個高風險安全漏洞，Railway 部署必要條件）
+- 接通 GitHub 自動部署：push 到 main 即自動更新網站
+- 備份機制：Railway 線上連續備份（PITR）＋ 本機每週自動備份（~/railway-backups）
+- 待辦：正式公告切換前，需先將 Zeabur 端最新資料重新同步到 Railway
+
 ## 2026-08-27
 
 新增商品異動紀錄
