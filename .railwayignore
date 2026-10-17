@@ -1,0 +1,6 @@
+node_modules
+backups
+.env
+.env.production
+.next
+tsconfig.tsbuildinfo

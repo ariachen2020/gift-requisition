@@ -15,7 +15,7 @@
     "@prisma/client": "^6.16.2",
     "autoprefixer": "^10.4.20",
     "lucide-react": "^0.446.0",
-    "next": "^14.2.33",
+    "next": "^14.2.35",
     "postcss": "^8.4.49",
     "react": "18.2.0",
     "react-dom": "18.2.0",
